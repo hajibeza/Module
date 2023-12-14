@@ -460,6 +460,28 @@ Use_Remote = function(...)
     return Data
 end
 
+BringMob = function(Pos, MonName)
+    for i,v in pairs(workspace.Enemies:GetChildren()) do
+        if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and (v.Name == MonName) then
+            if isnetworkowner(v.HumanoidRootPart) then
+                v.Humanoid.Sit = true
+                v.Humanoid.WalkSpeed = 0 
+                v.Humanoid.PlatformStand = true
+                v.Humanoid:ChangeState(11)
+                v.HumanoidRootPart.CanCollide = false
+                v.HumanoidRootPart.CFrame = Pos
+                if not v.HumanoidRootPart:FindFirstChild("BodyClip") then
+                    local Noclip = Instance.new("BodyVelocity")
+                    Noclip.Name = "BodyClip"
+                    Noclip.Parent = v.HumanoidRootPart
+                    Noclip.MaxForce = Vector3.new(100000,100000,100000)
+                    Noclip.Velocity = Vector3.new(0,0,0)
+                end
+            end
+        end
+    end
+end
+
 local MIDN = loadstring(game:HttpGet('https://raw.githubusercontent.com/hajibeza/RIPPER/main/TESTGUI.lua'))();
 
 local MIDN = MIDN:Window("RIPPER HUB Mobile Script")
@@ -512,8 +534,9 @@ spawn(function()
                 for i,v in pairs(workspace.Enemies:GetChildren()) do
                     if v.Name == Data[Level].Mon and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then 
                         repeat task.wait(0.02)
+                            BringMob(v.HumanoidRootPart.CFrame,v.Name)
                             v.HumanoidRootPart.CanCollide = false
-                            TP(v.HumanoidRootPart.CFrame * CFrame.new(0,30,0))
+                            toTarget(v.HumanoidRootPart.CFrame * CFrame.new(0,30,0))
                         until not Auto_Farm_Level or not v or v.Humanoid.Health <= 0 or not game.Players.LocalPlayer.PlayerGui.Main.Quest.Visible
                     end
                 end
@@ -534,12 +557,6 @@ local Root = Char.HumanoidRootPart
 
 Players = game.Players
 
-Client = Players.LocalPlayer
-repeat 
-    Client = Players.LocalPlayer
-    wait()
-until Client
-
 local kkii = require(game.ReplicatedStorage.Util.CameraShaker)
 kkii:Stop()
 
@@ -555,11 +572,11 @@ do -- Variable
 end
 
 do -- Module Requiring
-    PC = require(Client.PlayerScripts.CombatFramework.Particle)
+    PC = require(game.Players.LocalPlayer.PlayerScripts.CombatFramework.Particle)
     RL = require(game:GetService("ReplicatedStorage").CombatFramework.RigLib)
-    DMG = require(Client.PlayerScripts.CombatFramework.Particle.Damage)
-    RigC = getupvalue(require(Client.PlayerScripts.CombatFramework.RigController),2)
-    Combat =  getupvalue(require(Client.PlayerScripts.CombatFramework),2)
+    DMG = require(game.Players.LocalPlayer.PlayerScripts.CombatFramework.Particle.Damage)
+    RigC = getupvalue(require(game.Players.LocalPlayer.PlayerScripts.CombatFramework.RigController),2)
+    Combat =  getupvalue(require(game.Players.LocalPlayer.PlayerScripts.CombatFramework),2)
 end
 
 do -- Services
@@ -587,7 +604,7 @@ do -- Starter Thread
                 local Human = v:FindFirstChildOfClass("Humanoid")
                 if Human and Human.Health > 0 and Human.RootPart and v ~= Char then
                     local IsPlayer = game.Players:GetPlayerFromCharacter(v)
-                    local IsAlly = IsPlayer and CollectionService:HasTag(IsPlayer,"Ally"..Client.Name)
+                    local IsAlly = IsPlayer and CollectionService:HasTag(IsPlayer,"Ally"..game.Players.LocalPlayer.Name)
                     if not IsAlly then
                         CurrentAllMob[#CurrentAllMob + 1] = v
                         if not nearbymon and dist(Human.RootPart.Position) < 65 then
@@ -607,7 +624,7 @@ do -- Starter Thread
                     end
                 end
                 for i=1,#Players do local v = Players[i].Character
-                    if not Players[i]:GetAttribute("PvpDisabled") and v and v ~= Client.Character then
+                    if not Players[i]:GetAttribute("PvpDisabled") and v and v ~= game.Players.LocalPlayer.Character then
                         local Human = v:FindFirstChildOfClass("Humanoid")
                         if Human and Human.RootPart and Human.Health > 0 and dist(Human.RootPart.Position) < 65 then
                             canHits[#canHits+1] = Human.RootPart
@@ -671,7 +688,7 @@ task.spawn(function()
                 pcall(task.spawn,Controller.attack,Controller)
                 -- continue
             end
-            if Controller and Controller.equipped and (not Char.Busy.Value or Client.PlayerGui.Main.Dialogue.Visible) and Char.Stun.Value < 1 and Controller.currentWeaponModel then
+            if Controller and Controller.equipped and (not Char.Busy.Value or game.Players.LocalPlayer.PlayerGui.Main.Dialogue.Visible) and Char.Stun.Value < 1 and Controller.currentWeaponModel then
                 if (NeedAttacking or DamageAura) then
                     if NewFastAttack and tick() > AttackCD and not DisableFastAttack then
                         resetCD()
