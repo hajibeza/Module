@@ -1,3 +1,11 @@
+local placeId = game.PlaceId
+if placeId == 2753915549 then
+	World1 = true
+elseif placeId == 4442272183 then
+	World2 = true
+elseif placeId == 7449423635 then
+	World3 = true
+end
 function CheckQuest() 
 	local MyLevel = game.Players.LocalPlayer.Data.Level.Value
     if World1 then
