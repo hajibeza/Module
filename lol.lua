@@ -763,13 +763,15 @@ end)
 
 MainTab:Toggle("Auto Buso",true,function(value)
     Auto_Buso = value
-    while wait() do
-        if Auto_Buso then
-            if not game.Players.LocalPlayer.Character:FindFirstChild("HasBuso") then
-                Use_Remote("Buso")
-            end 
+    spawn(function()
+        while wait() do
+            if Auto_Buso then
+                if not game.Players.LocalPlayer.Character:FindFirstChild("HasBuso") then
+                    Use_Remote("Buso")
+                end 
+            end
         end
-    end
+    end)
 end)
 
 local Code = {
