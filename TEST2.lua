@@ -497,6 +497,41 @@ BringMob = function(Pos, MonName)
     end
 end
 
+function Noclip(Value)
+    if not Value or Value == false then
+        if game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyClip") then
+            game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyClip"):Destroy();
+        end
+    end
+    if Value then
+        -- setfflag("HumanoidParallelRemoveNoPhysics", "False")
+        -- setfflag("HumanoidParallelRemoveNoPhysicsNoSimulate2", "False")
+        -- game.Players.LocalPlayer.Character.Humanoid:ChangeState(11)
+        if game.Players.LocalPlayer.Character:WaitForChild("Humanoid").Sit then
+            game.Players.LocalPlayer.Character:WaitForChild("Humanoid").Sit = false
+        end
+        for _, v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+            if v:IsA("BasePart") then
+                v.CanCollide = false
+            end
+        end
+        if not game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyClip") then
+            local Noclip = Instance.new("BodyVelocity")
+            Noclip.Name = "BodyClip"
+            Noclip.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+            Noclip.MaxForce = Vector3.new(100000,100000,100000)
+            Noclip.Velocity = Vector3.new(0,0,0)
+        end
+    end
+end
+
+setscriptable(game.Players.LocalPlayer,"SimulationRadius",true)
+spawn(function()
+    while game:GetService("RunService").Stepped:Wait() do
+        game.Players.LocalPlayer.SimulationRadius = math.huge
+    end
+end)
+
 local MIDN = loadstring(game:HttpGet('https://raw.githubusercontent.com/hajibeza/RIPPER/main/TESTGUI.lua'))();
 
 local MIDN = MIDN:Window("RIPPER HUB Mobile Script")
@@ -507,11 +542,13 @@ local MainTab = MIDNServer:Channel("Main")
 
 MainTab:Toggle("Auto Farm Level",false,function(value)
 	Auto_Farm_Level = value
+    Noclip(false)
 end)
 
 spawn(function() 
     while wait() do
         if Auto_Farm_Level then
+            Noclip(true)
             local MyLevel = game.Players.LocalPlayer.Data.Level.Value
             if not game.Players.LocalPlayer.PlayerGui.Main.Quest.Visible then 
                 if Double_Quest then 
