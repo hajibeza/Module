@@ -150,7 +150,7 @@ QuestManager.CheckBossLevel = function(p1)
 
     for i ,v in pairs(DataIndx) do 
         for i2 ,v2 in pairs(QuestManager.QuestBag) do
-            -- if v ~= v2 then continue end
+            if v ~= v2 then continue end
             -- print(tprint(DataValue[DataIndx[ i -1 ]]))
             if QuestManager:FindValue(DataValue[v].Value.Task) == 1  then 
                 retun =  DataValue[DataIndx[ i -1 ]]
@@ -168,7 +168,7 @@ QuestManager.MyData = function()
 	QuestManager.BagNumber = {} ; 
 
     for i ,v in pairs(QuestManager.DataData) do 
-        -- if not v.Used then continue end ; 
+        if not v.Used then continue end ; 
         QuestManager.CountCheck = QuestManager.CountCheck + 1
     end
 
@@ -189,7 +189,7 @@ QuestManager.MyData = function()
 
 	for i ,v in pairs(QuestManager.AllQuest) do
         for i2 ,v2 in pairs(v.Value) do 
-            -- if (i:sub(1,11) == "MarineQuest" and #i == 11) or i == "BartiloQuest" or i == "CitizenQuest" then  continue end 
+            if (i:sub(1,11) == "MarineQuest" and #i == 11) or i == "BartiloQuest" or i == "CitizenQuest" then  continue end 
             p2[v2.LevelReq] = {
                 Index = i , 
                 Value = v2 , 
@@ -303,7 +303,7 @@ function QuestManager:GetQuest()
     table.sort(QuestManager.BagNumber)
 
     for i ,v in pairs(QuestManager.BagNumber) do 
-    --    if v == p1 then continue end ;
+       if v == p1 then continue end ;
 	   p2 = v 
     end
 
@@ -497,6 +497,34 @@ BringMob = function(Pos, MonName)
     end
 end
 
+function Noclip(Value)
+    if not Value or Value == false then
+        if game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyClip") then
+            game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyClip"):Destroy();
+        end
+    end
+    if Value then
+        -- setfflag("HumanoidParallelRemoveNoPhysics", "False")
+        -- setfflag("HumanoidParallelRemoveNoPhysicsNoSimulate2", "False")
+        -- game.Players.LocalPlayer.Character.Humanoid:ChangeState(11)
+        if game.Players.LocalPlayer.Character:WaitForChild("Humanoid").Sit then
+            game.Players.LocalPlayer.Character:WaitForChild("Humanoid").Sit = false
+        end
+        for _, v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+            if v:IsA("BasePart") then
+                v.CanCollide = false
+            end
+        end
+        if not game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyClip") then
+            local Noclip = Instance.new("BodyVelocity")
+            Noclip.Name = "BodyClip"
+            Noclip.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+            Noclip.MaxForce = Vector3.new(100000,100000,100000)
+            Noclip.Velocity = Vector3.new(0,0,0)
+        end
+    end
+end
+
 setscriptable(game.Players.LocalPlayer,"SimulationRadius",true)
 spawn(function()
     while game:GetService("RunService").Stepped:Wait() do
@@ -514,56 +542,60 @@ local MainTab = MIDNServer:Channel("Main")
 
 MainTab:Toggle("Auto Farm Level",false,function(value)
 	Auto_Farm_Level = value
+    Noclip(false)
 end)
 
 spawn(function() 
-    while wait() do
-        if Auto_Farm_Level then
-            local MyLevel = game.Players.LocalPlayer.Data.Level.Value
-            if not game.Players.LocalPlayer.PlayerGui.Main.Quest.Visible then 
-                if Double_Quest then 
-                    Level , Data = QuestManager:GetQuest()  
-                    if not QuestManager.DataData[Level].Used then 
-                        QuestManager.DataData[Level].Used = true 
-                    end
-                    if MyLevel > 10 then repeat wait(.1) TP(Data[Level].CFrameQuest) until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Data[Level].CFrameQuest.Position).Magnitude <= 3 or not Auto_Farm_Level end
-                    wait(.5)
-                    if Auto_Farm_Level then Use_Remote("StartQuest",Data[Level].NameQuest,Data[Level].NumberQuest) end
-                    wait(.5)
-                else
-                    Level , Data = QuestManager:GetQuest()  
-                    if MyLevel > 10 then repeat wait(.1) TP(Data[Level].CFrameQuest) until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Data[Level].CFrameQuest.Position).Magnitude <= 3 or not Auto_Farm_Level end
-                    wait(.5)
-                    if Auto_Farm_Level then Use_Remote("StartQuest",Data[Level].NameQuest,Data[Level].NumberQuest) end
-                    wait(.5)
-                end
-            end
-        
-            if not Check_Near_Mon(Data[Level].Mon) then
-                for i,v in pairs(workspace["_WorldOrigin"].EnemySpawns:GetChildren()) do
-                    if v.Name == Data[Level].Mon or v.Name:match(Data[Level].Mon) then 
-                        repeat task.wait(.1) 
-                            if not Auto_Farm_Level then break end
-                            TP(v.CFrame * CFrame.new(0,30,0))
-                        until Check_Near_Mon(Data[Level].Mon) or (v.CFrame.Position - game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position).magnitude <= 70
+    while wait(.1) do
+        pcall(function()
+            if Auto_Farm_Level then
+                Noclip(true)
+                local MyLevel = game.Players.LocalPlayer.Data.Level.Value
+                if not game.Players.LocalPlayer.PlayerGui.Main.Quest.Visible then 
+                    if Double_Quest then 
+                        Level , Data = QuestManager:GetQuest()  
+                        if not QuestManager.DataData[Level].Used then 
+                            QuestManager.DataData[Level].Used = true 
+                        end
+                        if MyLevel > 10 then repeat wait(.1) TP(Data[Level].CFrameQuest) until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Data[Level].CFrameQuest.Position).Magnitude <= 3 or not Auto_Farm_Level end
+                        wait(.5)
+                        if Auto_Farm_Level then Use_Remote("StartQuest",Data[Level].NameQuest,Data[Level].NumberQuest) end
+                        wait(.5)
+                    else
+                        Level , Data = QuestManager:GetQuest()  
+                        if MyLevel > 10 then repeat wait(.1) TP(Data[Level].CFrameQuest) until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Data[Level].CFrameQuest.Position).Magnitude <= 3 or not Auto_Farm_Level end
+                        wait(.5)
+                        if Auto_Farm_Level then Use_Remote("StartQuest",Data[Level].NameQuest,Data[Level].NumberQuest) end
+                        wait(.5)
                     end
                 end
-            end
-        
-            if not Data[Level].Mon or (not Data[Level].CFrameMon and not Check_Near_Mon(Data[Level].Mon)) then return end 
-        
-            if Check_Near_Mon(Data[Level].Mon) then 
-                for i,v in pairs(workspace.Enemies:GetChildren()) do
-                    if v.Name == Data[Level].Mon and Check_Available_Mon(v) then 
-                        repeat task.wait(0.02)
-                            BringMob(v.HumanoidRootPart.CFrame,v.Name)
-                            v.HumanoidRootPart.CanCollide = false
-                            TP(v.HumanoidRootPart.CFrame * CFrame.new(0,30,0))
-                        until not Auto_Farm_Level or not Check_Available_Mon(v) or not game.Players.LocalPlayer.PlayerGui.Main.Quest.Visible
+            
+                if not Check_Near_Mon(Data[Level].Mon) then
+                    for i,v in pairs(workspace["_WorldOrigin"].EnemySpawns:GetChildren()) do
+                        if v.Name == Data[Level].Mon or v.Name:match(Data[Level].Mon) then 
+                            repeat task.wait(.1) 
+                                if not Auto_Farm_Level then break end
+                                TP(v.CFrame * CFrame.new(0,30,0))
+                            until Check_Near_Mon(Data[Level].Mon) or (v.CFrame.Position - game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position).magnitude <= 70
+                        end
+                    end
+                end
+            
+                if not Data[Level].Mon or (not Data[Level].CFrameMon and not Check_Near_Mon(Data[Level].Mon)) then return end 
+            
+                if Check_Near_Mon(Data[Level].Mon) then 
+                    for i,v in pairs(workspace.Enemies:GetChildren()) do
+                        if v.Name == Data[Level].Mon and Check_Available_Mon(v) then 
+                            repeat task.wait(0.02)
+                                BringMob(v.HumanoidRootPart.CFrame,v.Name)
+                                v.HumanoidRootPart.CanCollide = false
+                                TP(v.HumanoidRootPart.CFrame * CFrame.new(0,30,0))
+                            until not Auto_Farm_Level or not Check_Available_Mon(v) or not game.Players.LocalPlayer.PlayerGui.Main.Quest.Visible
+                        end
                     end
                 end
             end
-        end
+        end)
     end
 end)
 
@@ -575,6 +607,69 @@ MainTab:Toggle("Fast Attack",false,function(value)
 	NeedAttacking = value
     NewFastAttack = value
     NoAttackAnimation = value
+end)
+
+local Code = {
+	"EXP_5B",
+	"CONTROL",
+	"UPDATE11",
+	"XMASEXP",
+	"1BILLION",
+	"ShutDownFix2",
+	"UPD14",
+	"STRAWHATMAINE",
+	"TantaiGaming",
+	"Colosseum",
+	"Axiore",
+	"Sub2Daigrock",
+	"Sky Island 3",
+	"Sub2OfficialNoobie",
+	"SUB2NOOBMASTER123",
+	"THEGREATACE",
+	"Fountain City",
+	"BIGNEWS",
+	"FUDD10",
+	"SUB2GAMERROBOT_EXP1",
+	"UPD15",
+	"2BILLION",
+	"UPD16",
+	"3BVISITS",
+	"fudd10_v2",
+	"Starcodeheo",
+	"Magicbus",
+	"JCWK",
+	"Bluxxy",
+	"Sub2Fer999",
+	"Enyu_is_Pro",
+	"GAMER_ROBOT_1M",
+	"ADMINGIVEAWAY",
+	"GAMERROBOT_YT",
+	"kittgaming",
+    "ADMIN_TROLL",
+    "staffbattle",
+    "youtuber_shipbattle",
+    "Sub2CaptainMaui",
+    "DEVSCOOKING",
+}
+
+
+
+MainTab:Slider("Level to Redeem Code", 1, 2525, 1, function(value)
+	Redeem_Code_At_Level = value
+end)
+
+MainTab:Toggle("Auto Redeem Code [X2 EXP]",false,function(value)
+    Auto_Redeem_Code = value
+end)
+
+spawn(function()
+    while wait(.1) do
+        if Auto_Redeem_Code then 
+            for i,v in pairs(Code) do
+                game:GetService("ReplicatedStorage").Remotes.Redeem:InvokeServer(v)
+            end
+        end
+    end
 end)
 
 local Weapon_Dropdown = MainTab:Dropdown("Weapon",{"Melee","Sword"}, function(value)
