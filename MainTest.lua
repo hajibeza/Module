@@ -551,7 +551,7 @@ spawn(function()
                         repeat task.wait(0.02)
                             BringMob(v.HumanoidRootPart.CFrame,v.Name)
                             v.HumanoidRootPart.CanCollide = false
-                            toTarget(v.HumanoidRootPart.CFrame * CFrame.new(0,30,0))
+                            TP(v.HumanoidRootPart.CFrame * CFrame.new(0,30,0))
                         until not Auto_Farm_Level or not v or v.Humanoid.Health <= 0 or not game.Players.LocalPlayer.PlayerGui.Main.Quest.Visible
                     end
                 end
