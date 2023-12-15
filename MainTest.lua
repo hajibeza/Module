@@ -428,11 +428,11 @@ function Check_Near_Mon(Monster)
             return v
         end
     end
-    for i,v in pairs(game.ReplicatedStorage:GetChildren()) do
-        if table.find(Table_Monster,v.Name) then    
-            return v
-        end
-    end
+    -- for i,v in pairs(game.ReplicatedStorage:GetChildren()) do
+    --     if table.find(Table_Monster,v.Name) then    
+    --         return v
+    --     end
+    -- end
     return nil
 end
 
@@ -538,10 +538,10 @@ spawn(function()
 end)
 
 spawn(function(InitializeService)
-    for i,v in pairs(getconnections(Local_Player.Idled)) do
+    for i,v in pairs(getconnections(game.Players.LocalPlayer.Idled)) do
         v:Disable() 
     end
-    Local_Player.Idled:connect(function()
+    game.Players.LocalPlayer.Idled:connect(function()
         game:GetService("VirtualUser"):Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
         wait(1)
         game:GetService("VirtualUser"):Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
@@ -628,11 +628,11 @@ if FirstSea then
         Noclip(false)
     end)
 
-    spawn(Function()
+    spawn(function()
         while wait() do
             if Auto_Second_Sea then
                 local Remote = Use_Remote("DressrosaQuestProgress")
-                local MyLevel = Local_Player.Data.Level.Value 
+                local MyLevel = game.Players.LocalPlayer.Data.Level.Value 
 
                 Noclip(true)
 
@@ -660,18 +660,18 @@ if FirstSea then
 
                     if not Check_Near_Mon("Ice Admiral [Lv. 700] [Boss]") then
                         repeat task.wait(.1)
-                            toTarget(game:GetService("ReplicatedStorage"):FindFirstChild("Ice Admiral [Lv. 700] [Boss]").HumanoidRootPart.CFrame * CFrame.new(0,30,0))
+                            TP(game:GetService("ReplicatedStorage"):FindFirstChild("Ice Admiral [Lv. 700] [Boss]").HumanoidRootPart.CFrame * CFrame.new(0,30,0))
                         until Check_Near_Mon("Ice Admiral [Lv. 700] [Boss]") or not Auto_Second_Sea
                     end
 
                     if Check_Near_Mon("Ice Admiral [Lv. 700] [Boss]") then
                         for i,v in pairs(workspace.Enemies:GetChildren()) do
-                            if v.Name == "Ice Admiral [Lv. 700] [Boss]" and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+                            if v.Name == "Ice Admiral [Lv. 700] [Boss]" and Check_Available_Mon(v) then
                                 repeat task.wait(0.02)
                                     Equip_Tool(Current_Weapon)
                                     v.HumanoidRootPart.CanCollide = false
-                                    toTarget(v.HumanoidRootPart.CFrame * CFrame.new(0,30,0))
-                                until not Auto_Second_Sea or not v or v.Humanoid.Health <= 0
+                                    TP(v.HumanoidRootPart.CFrame * CFrame.new(0,30,0))
+                                until not Auto_Second_Sea or not Check_Available_Mon(v) 
                             end
                         end
                     end
@@ -727,14 +727,14 @@ elseif ThirdSea then
                     end
                 end
 
-                if Check_Near_Mon("Cake Prince ") then
+                if Check_Near_Mon("Cake Prince") then
 
-                    if not workspace.Enemies:FindFirstChild("Cake Prince ") then
+                    if not workspace.Enemies:FindFirstChild("Cake Prince") then
                         TP(game.ReplicatedStorage:FindFirstChild("Cake Prince").HumanoidRootPart.CFrame)
                     end
 
                     for i,v in pairs(workspace.Enemies:GetChildren()) do
-                        if v.Name == "Cake Prince " and Check_Available_Mon(v) then
+                        if v.Name == "Cake Prince" and Check_Available_Mon(v) then
                             repeat task.wait()
                                 Equip_Tool(Current_Weapon)
                                 BringMob(v.HumanoidRootPart.CFrame,v.Name)
@@ -761,8 +761,15 @@ MainTab:Toggle("Fast Attack",false,function(value)
     NoAttackAnimation = value
 end)
 
-MainTab:Toggle("Auto Buso",false,function(value)
+MainTab:Toggle("Fast Attack",false,function(value)
     Auto_Buso = value
+    while wait() do
+        if Auto_Buso then
+            if not game.Players.LocalPlayer.Character:FindFirstChild("HasBuso") then
+                Use_Remote("Buso")
+            end 
+        end
+    end
 end)
 
 local Code = {
