@@ -428,11 +428,11 @@ function Check_Near_Mon(Monster)
             return v
         end
     end
-    for i,v in pairs(game.ReplicatedStorage:GetChildren()) do
-        if table.find(Table_Monster,v.Name) then    
-            return v
-        end
-    end
+    -- for i,v in pairs(game.ReplicatedStorage:GetChildren()) do
+    --     if table.find(Table_Monster,v.Name) then    
+    --         return v
+    --     end
+    -- end
     return nil
 end
 
@@ -628,54 +628,10 @@ if FirstSea then
         Noclip(false)
     end)
 
-    spawn(Function()
+    spawn(function()
         while wait() do
             if Auto_Second_Sea then
-                local Remote = Use_Remote("DressrosaQuestProgress")
-                local MyLevel = game.Players.LocalPlayer.Data.Level.Value 
 
-                Noclip(true)
-
-                if Remote.KilledIceBoss then return end
-                if not FirstSea then return end
-                if Auto_Farm_Level and MyLevel >= 700 and FirstSea then Auto_Farm_Level = false end
-
-                if not Remote.TalkedDetective then
-                    repeat task.wait(.1) 
-                        Use_Remote("DressrosaQuestProgress","Detective")
-                    until Check_Tool_Inventory("Key") or not Auto_Second_Sea
-                end
-                
-                if not Remote.UsedKey then
-                    repeat task.wait(.1) 
-                        Use_Remote("DressrosaQuestProgress","UseKey")
-                    until not Check_Tool_Inventory("Key") or not Auto_Second_Sea
-                end
-
-                if Remote.KilledIceBoss then
-                    Use_Remote("TravelDressrosa")
-                end
-
-                if not Remote.KilledIceBoss and Remote.UsedKey then
-
-                    if not Check_Near_Mon("Ice Admiral [Lv. 700] [Boss]") then
-                        repeat task.wait(.1)
-                            toTarget(game:GetService("ReplicatedStorage"):FindFirstChild("Ice Admiral [Lv. 700] [Boss]").HumanoidRootPart.CFrame * CFrame.new(0,30,0))
-                        until Check_Near_Mon("Ice Admiral [Lv. 700] [Boss]") or not Auto_Second_Sea
-                    end
-
-                    if Check_Near_Mon("Ice Admiral [Lv. 700] [Boss]") then
-                        for i,v in pairs(workspace.Enemies:GetChildren()) do
-                            if v.Name == "Ice Admiral [Lv. 700] [Boss]" and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
-                                repeat task.wait(0.02)
-                                    Equip_Tool(Current_Weapon)
-                                    v.HumanoidRootPart.CanCollide = false
-                                    toTarget(v.HumanoidRootPart.CFrame * CFrame.new(0,30,0))
-                                until not Auto_Second_Sea or not v or v.Humanoid.Health <= 0
-                            end
-                        end
-                    end
-                end
             end
         end
     end)
@@ -706,7 +662,7 @@ elseif ThirdSea then
 
                 if string.find(Remote_Cake_Prince,"Do you want to open") then Use_Remote("CakePrinceSpawner") end
 
-                if not Check_Near_Mon("Cake Prince") then
+                if not Check_Near_Mon("Cake Prince [Raid Boss]") then
                     Mon_Cake = {"Baking Staff","Head Baker","Cake Guard","Cookie Crafter"}
 
                     if not Check_Near_Mon(Mon_Cake) then
@@ -721,26 +677,26 @@ elseif ThirdSea then
                                     BringMob(v.HumanoidRootPart.CFrame,v.Name)
                                     v.HumanoidRootPart.CanCollide = false
                                     TP(v.HumanoidRootPart.CFrame * CFrame.new(0,30,0))
-                                until not Auto_Cake_Prince or Check_Near_Mon("Cake Prince") or not Check_Near_Mon(Mon_Cake) or not Check_Available_Mon(v)
+                                until not Auto_Cake_Prince or Check_Near_Mon("Cake Prince [Raid Boss]") or not Check_Near_Mon(Mon_Cake) or not Check_Available_Mon(v)
                             end
                         end
                     end
                 end
 
-                if Check_Near_Mon("Cake Prince ") then
+                if Check_Near_Mon("Cake Prince [Raid Boss]") then
 
-                    if not workspace.Enemies:FindFirstChild("Cake Prince ") then
-                        TP(game.ReplicatedStorage:FindFirstChild("Cake Prince").HumanoidRootPart.CFrame)
+                    if not workspace.Enemies:FindFirstChild("Cake Prince [Raid Boss]") then
+                        TP(game.ReplicatedStorage:FindFirstChild("Cake Prince [Raid Boss]").HumanoidRootPart.CFrame)
                     end
 
                     for i,v in pairs(workspace.Enemies:GetChildren()) do
-                        if v.Name == "Cake Prince " and Check_Available_Mon(v) then
+                        if v.Name == "Cake Prince [Raid Boss]" and Check_Available_Mon(v) then
                             repeat task.wait()
                                 Equip_Tool(Current_Weapon)
                                 BringMob(v.HumanoidRootPart.CFrame,v.Name)
                                 v.HumanoidRootPart.CanCollide = false
                                 TP(v.HumanoidRootPart.CFrame * CFrame.new(0,30,0))
-                            until not Auto_Cake_Prince or not Check_Near_Mon("Cake Prince") or not Check_Available_Mon(v)
+                            until not Auto_Cake_Prince or not Check_Near_Mon("Cake Prince [Raid Boss]") or not Check_Available_Mon(v)
                         end
                     end
                 end
@@ -759,20 +715,6 @@ MainTab:Toggle("Fast Attack",false,function(value)
 	NeedAttacking = value
     NewFastAttack = value
     NoAttackAnimation = value
-end)
-
-MainTab:Toggle("Auto Buso",false,function(value)
-    Auto_Buso = value
-end)
-
-spawn(function()
-    while wait(.5) do
-        if Auto_Buso then
-            if not game.Players.LocalPlayer.Character:FindFirstChild("HasBuso") then
-                Use_Remote("Buso")
-            end 
-        end
-    end
 end)
 
 local Code = {
