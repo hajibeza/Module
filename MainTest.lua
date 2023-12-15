@@ -11,8 +11,6 @@ local Farm = {} ;
 
 local QuestManager =  {} ;
 
-Double_Quest = false
-
 QuestManager.Guide = require(game:GetService("ReplicatedStorage").GuideModule) ; 
 QuestManager.AllQuest = require(game:GetService("ReplicatedStorage").Quests) ;
 
@@ -33,8 +31,6 @@ QuestManager.QuestBag = {} ;
 QuestManager.BagNumber = {} 
 -- QuestManager.CustomLevel = 1425 ; 
 
-Double_Quest = true
-
 QuestManager.LevelReq  = function()
     local LevelReq = {} ;
  
@@ -46,9 +42,9 @@ QuestManager.LevelReq  = function()
 
     local MyLevel ; 
     if not QuestManager.CustomLevel then 
-		MyLevel = game.Players.LocalPlayer.Data.Level.Value 
+		MyLevel =  game.Players.LocalPlayer.Data.Level.Value 
 	else
-		MyLevel = QuestManager.CustomLevel  
+		MyLevel = QuestManager.CustomLevel
     end
 
 	if FirstSea and MyLevel > 675  then 
@@ -169,7 +165,7 @@ QuestManager.MyData = function()
 
     for i ,v in pairs(QuestManager.DataData) do 
         if not v.Used then continue end ; 
-        QuestManager.CountCheck = QuestManager.CountCheck + 1
+        QuestManager.CountCheck +=  1 ;
     end
 
     -- Reset ;
@@ -204,7 +200,7 @@ QuestManager.MyData = function()
 				if p2[i].Value.LevelReq == v2 then 
 
 					if QuestManager:FindValue(p2[i].Value.Task) == 1 and Double_Quest then 
-						-- continue
+						continue
 					end
 					table.insert(QuestManager.BagNumber,v2)
 					if not QuestManager.DataData[v2] then 
@@ -294,7 +290,7 @@ function QuestManager:GetQuest()
  
     local p1 , p2
     
-    if Double_Quest then 
+    if Double_Quest  then 
         p1 = math.max(unpack(QuestManager.BagNumber)) ; 
     else
         p1 = QuestManager.LevelReq()
@@ -346,58 +342,58 @@ end  ;
 
 local Level , Data  = QuestManager:GetQuest()
 
--- function getnear(name) 
---     if not name:match("Lv. ") then return end 
---     local namenew = name:split("Lv. ")[2]:split("]")[1]
+function getnear(name) 
+    if not name:match("Lv. ") then return end 
+    local namenew = name:split("Lv. ")[2]:split("]")[1]
 
---     local MyLevel ; 
---     if not QuestManager.CustomLevel then 
---         MyLevel =  game.Players.LocalPlayer.Data.Level.Value 
---     else
---         MyLevel = QuestManager.CustomLevel
---     end
+    local MyLevel ; 
+    if not QuestManager.CustomLevel then 
+        MyLevel =  game.Players.LocalPlayer.Data.Level.Value 
+    else
+        MyLevel = QuestManager.CustomLevel
+    end
 
---     if FirstSea and MyLevel > 675  then 
---         MyLevel = 675 
---     elseif SecondSea and MyLevel > 1450 then 
---         MyLevel = 1475 
---     elseif MyLevel >= 2525 then 
---         MyLevel = 2525
---     else
---         MyLevel = MyLevel
---     end
+    if FirstSea and MyLevel > 675  then 
+        MyLevel = 675 
+    elseif SecondSea and MyLevel > 1450 then 
+        MyLevel = 1475 
+    elseif MyLevel >= 2525 then 
+        MyLevel = 2525
+    else
+        MyLevel = MyLevel
+    end
 
---     local frist = namenew:split("")[1] ; 
+    local frist = namenew:split("")[1] ; 
 
---     namenew = tonumber(namenew)
+    namenew = tonumber(namenew)
 
---     local list = { 
---         "Shanda" ,
---         "Royal" ,
---         "Gelley"
---     }
+    local list = { 
+        "Shanda" ,
+        "Royal" ,
+        "Gelley"
+    }
 
---     function c() 
---         for i ,v in pairs(list) do 
---             if name:match(v) then 
---                 return true 
---             end
---         end 
---         return false 
---     end 
+    function c() 
+        for i ,v in pairs(list) do 
+            if name:match(v) then 
+                return true 
+            end
+        end 
+        return false 
+    end 
 
---     -- if compare_Level(25,250) and c() then 
---     --     return true 
---     -- end
---     local Level = MyLevel ; 
---     -- print(Level)
---     if( ( (namenew >= Level and namenew - Level < 75 ) or (namenew <= Level and Level - namenew  < 75) )  or (c() or frist == tostring(Level):split("")[1] ) ) and #tostring(Level) == #tostring(namenew) then 
---         return true 
---     else
---         return false 
---     end
+    -- if compare_Level(25,250) and c() then 
+    --     return true 
+    -- end
+    local Level = MyLevel ; 
+    -- print(Level)
+    if( ( (namenew >= Level and namenew - Level < 75 ) or (namenew <= Level and Level - namenew  < 75) )  or (c() or frist == tostring(Level):split("")[1] ) ) and #tostring(Level) == #tostring(namenew) then 
+        return true 
+    else
+        return false 
+    end
 
--- end  ; 
+end  ; 
 
 print(Data[Level].Mon)
 
@@ -524,6 +520,8 @@ function Noclip(Value)
         end
     end
 end
+
+Double_Quest = true
 
 setscriptable(game.Players.LocalPlayer,"SimulationRadius",true)
 spawn(function()
