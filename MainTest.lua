@@ -1,4 +1,3 @@
-
 local placeId = game.PlaceId
 if placeId == 2753915549 then
 	FirstSea = true
@@ -497,6 +496,13 @@ BringMob = function(Pos, MonName)
         end
     end
 end
+
+setscriptable(game.Players.LocalPlayer,"SimulationRadius",true)
+spawn(function()
+    while game:GetService("RunService").Stepped:Wait() do
+        game.Players.LocalPlayer.SimulationRadius = math.huge
+    end
+end)
 
 local MIDN = loadstring(game:HttpGet('https://raw.githubusercontent.com/hajibeza/RIPPER/main/TESTGUI.lua'))();
 
