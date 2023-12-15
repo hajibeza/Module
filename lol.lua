@@ -628,7 +628,7 @@ if FirstSea then
         Noclip(false)
     end)
 
-    spawn(Function()
+    spawn(function()
         while wait() do
             if Auto_Second_Sea then
                 local Remote = Use_Remote("DressrosaQuestProgress")
@@ -660,18 +660,18 @@ if FirstSea then
 
                     if not Check_Near_Mon("Ice Admiral [Lv. 700] [Boss]") then
                         repeat task.wait(.1)
-                            toTarget(game:GetService("ReplicatedStorage"):FindFirstChild("Ice Admiral [Lv. 700] [Boss]").HumanoidRootPart.CFrame * CFrame.new(0,30,0))
+                            TP(game:GetService("ReplicatedStorage"):FindFirstChild("Ice Admiral [Lv. 700] [Boss]").HumanoidRootPart.CFrame * CFrame.new(0,30,0))
                         until Check_Near_Mon("Ice Admiral [Lv. 700] [Boss]") or not Auto_Second_Sea
                     end
 
                     if Check_Near_Mon("Ice Admiral [Lv. 700] [Boss]") then
                         for i,v in pairs(workspace.Enemies:GetChildren()) do
-                            if v.Name == "Ice Admiral [Lv. 700] [Boss]" and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+                            if v.Name == "Ice Admiral [Lv. 700] [Boss]" and Check_Available_Mon(v) then
                                 repeat task.wait(0.02)
                                     Equip_Tool(Current_Weapon)
                                     v.HumanoidRootPart.CanCollide = false
-                                    toTarget(v.HumanoidRootPart.CFrame * CFrame.new(0,30,0))
-                                until not Auto_Second_Sea or not v or v.Humanoid.Health <= 0
+                                    TP(v.HumanoidRootPart.CFrame * CFrame.new(0,30,0))
+                                until not Auto_Second_Sea or not Check_Available_Mon(v) 
                             end
                         end
                     end
@@ -755,10 +755,21 @@ MainTab:Line()
 
 MainTab:Label("Setting Farm")
 
-MainTab:Toggle("Fast Attack",false,function(value)
+MainTab:Toggle("Fast Attack",true,function(value)
 	NeedAttacking = value
     NewFastAttack = value
     NoAttackAnimation = value
+end)
+
+MainTab:Toggle("Auto Buso",true,function(value)
+    Auto_Buso = value
+    while wait() do
+        if Auto_Buso then
+            if not game.Players.LocalPlayer.Character:FindFirstChild("HasBuso") then
+                Use_Remote("Buso")
+            end 
+        end
+    end
 end)
 
 local Code = {
@@ -991,7 +1002,7 @@ task.spawn(function()
             Controller = Data.activeController
             if NormalClick then
                 pcall(task.spawn,Controller.attack,Controller)
-                -- continue
+                continue
             end
             if Controller and Controller.equipped and (not Char.Busy.Value or game.Players.LocalPlayer.PlayerGui.Main.Dialogue.Visible) and Char.Stun.Value < 1 and Controller.currentWeaponModel then
                 if (NeedAttacking or DamageAura) then
@@ -1003,7 +1014,7 @@ task.spawn(function()
                         Controller.hitboxMagnitude = 65
                         pcall(task.spawn,Controller.attack,Controller)
                         lastFireValid = tick()
-                        -- continue
+                        continue
                     end
                     local AID3 = Controller.anims.basic[3]
                     local AID2 = Controller.anims.basic[2]
