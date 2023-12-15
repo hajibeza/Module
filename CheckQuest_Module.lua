@@ -537,6 +537,22 @@ spawn(function()
     end
 end)
 
+spawn(function(InitializeService)
+    for i,v in pairs(getconnections(game.Players.LocalPlayer.Idled)) do
+        v:Disable() 
+    end
+    game.Players.LocalPlayer.Idled:connect(function()
+        game:GetService("VirtualUser"):Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+        wait(1)
+        game:GetService("VirtualUser"):Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+    end)
+    while wait(300) do
+        game:GetService("VirtualUser"):Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+        wait(1)
+        game:GetService("VirtualUser"):Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+    end
+end)
+
 local MIDN = loadstring(game:HttpGet('https://raw.githubusercontent.com/hajibeza/RIPPER/main/TESTGUI.lua'))();
 
 local MIDN = MIDN:Window("RIPPER HUB Mobile Script")
@@ -604,6 +620,23 @@ spawn(function()
         end)
     end
 end)
+
+if FirstSea then
+
+    MainTab:Toggle("Auto Second Sea",false,function(value)
+        Auto_Second_Sea = value
+        Noclip(false)
+    end)
+
+    spawn(Function()
+        while wait() do
+            if Auto_Second_Sea then
+
+            end
+        end
+    end)
+
+end
 
 MainTab:Line()
 
