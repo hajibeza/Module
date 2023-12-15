@@ -521,6 +521,13 @@ function Noclip(Value)
     end
 end
 
+function Equip_Tool(Tool)
+    if game.Players.LocalPlayer.Backpack:FindFirstChild(Tool) then 
+        local ToolHumanoid = game.Players.LocalPlayer.Backpack:FindFirstChild(Tool) 
+        game.Players.LocalPlayer.Character.Humanoid:EquipTool(ToolHumanoid) 
+    end
+end
+
 Double_Quest = true
 
 setscriptable(game.Players.LocalPlayer,"SimulationRadius",true)
@@ -585,6 +592,7 @@ spawn(function()
                     for i,v in pairs(workspace.Enemies:GetChildren()) do
                         if v.Name == Data[Level].Mon and Check_Available_Mon(v) then 
                             repeat task.wait(0.02)
+                                Equip_Tool(Current_Weapon)
                                 BringMob(v.HumanoidRootPart.CFrame,v.Name)
                                 v.HumanoidRootPart.CanCollide = false
                                 TP(v.HumanoidRootPart.CFrame * CFrame.new(0,30,0))
@@ -596,6 +604,75 @@ spawn(function()
         end)
     end
 end)
+
+MainTab:Line()
+
+MainTab:Label("Misc Farm")
+
+if FirstSea then
+
+elseif SecondSea then
+
+elseif ThirdSea then
+
+    MainTab:Toggle("Auto Cake Prince",false,function(value)
+        Auto_Cake_Prince = value
+        Noclip(false)
+    end)
+
+    spawn(function()
+        while wait() do
+            if Auto_Cake_Prince then
+                Noclip(true)
+
+                local Remote_Cake_Prince = Use_Remote("CakePrinceSpawner")
+
+                if string.find(Remote_Cake_Prince,"Do you want to open") then Use_Remote("CakePrinceSpawner") end
+
+                if not Check_Near_Mon("Cake Prince [Raid Boss]") then
+                    Mon_Cake = {"Baking Staff","Head Baker","Cake Guard","Cookie Crafter"}
+
+                    if not Check_Near_Mon(Mon_Cake) then
+                        TP(CFrame.new(-2037.00171, 57.8413582, -12550.6748, 1, 0, 0, 0, 1, 0, 0, 0, 1))
+                    end
+
+                    if Check_Near_Mon(Mon_Cake) then
+                        for i,v in pairs(workspace.Enemies:GetChildren()) do
+                            if table.find(Mon_Cake,v.Name) and Check_Available_Mon(v) then
+                                repeat task.wait(0.02)
+                                    Equip_Tool(Current_Weapon)
+                                    BringMob(v.HumanoidRootPart.CFrame,v.Name)
+                                    v.HumanoidRootPart.CanCollide = false
+                                    TP(v.HumanoidRootPart.CFrame * CFrame.new(0,30,0))
+                                until not Auto_Cake_Prince or Check_Near_Mon("Cake Prince [Raid Boss]") or not Check_Near_Mon(Mon_Cake) or not Check_Available_Mon(v)
+                            end
+                        end
+                    end
+                end
+
+                if Check_Near_Mon("Cake Prince [Raid Boss]") then
+
+                    if not workspace.Enemies:FindFirstChild("Cake Prince [Raid Boss]") then
+                        TP(game.ReplicatedStorage:FindFirstChild("Cake Prince [Raid Boss]").HumanoidRootPart.CFrame)
+                    end
+
+                    for i,v in pairs(workspace.Enemies:GetChildren()) do
+                        if v.Name == "Cake Prince [Raid Boss]" and Check_Available_Mon(v) then
+                            repeat task.wait()
+                                Equip_Tool(Current_Weapon)
+                                BringMob(v.HumanoidRootPart.CFrame,v.Name)
+                                v.HumanoidRootPart.CanCollide = false
+                                TP(v.HumanoidRootPart.CFrame * CFrame.new(0,30,0))
+                            until not Auto_Cake_Prince or not Check_Near_Mon("Cake Prince [Raid Boss]") or not Check_Available_Mon(v)
+                        end
+                    end
+                end
+
+            end
+        end
+    end)
+
+end
 
 MainTab:Line()
 
@@ -672,6 +749,34 @@ end)
 
 local Weapon_Dropdown = MainTab:Dropdown("Weapon",{"Melee","Sword"}, function(value)
     Weapon = value
+end)
+
+spawn(function()
+    while wait(.5) do
+        pcall(function()
+            for i ,v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                if Weapon == "Melee" then 
+                    if  v.ToolTip == "Melee" then
+                        if game.Players.LocalPlayer.Backpack:FindFirstChild(tostring(v.Name)) then
+                            Current_Weapon = v.Name
+                        end
+                    end
+                elseif Weapon == "Sword" then
+                     if v.ToolTip == "Sword" then
+                        if game.Players.LocalPlayer.Backpack:FindFirstChild(tostring(v.Name)) then
+                            Currenlt_Weapon = v.Name
+                        end
+                    end
+                elseif Weapon == "Devil Fruit" then 
+                    if v.ToolTip == "Blox Fruit" then
+                        if game.Players.LocalPlayer.Backpack:FindFirstChild(tostring(v.Name)) then
+                            Current_Weapon = v.Name
+                        end
+                    end
+                end
+            end
+        end)
+    end
 end)
 
 CollectionService = game:GetService("CollectionService")
