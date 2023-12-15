@@ -451,13 +451,28 @@ Use_Remote = function(...)
     local ARGS = {...}
     local Data = network:Send("CommF_",...)
     if ARGS[1] == "requestEntrance" then
-        CollectionService:AddTag(Local_Player,"Teleporting")
+        CollectionService:AddTag(game.Players.LocalPlayer,"Teleporting")
         task.delay(3,function()
-            CollectionService:RemoveTag(Local_Player,"Teleporting")
+            CollectionService:RemoveTag(game.Players.LocalPlayer,"Teleporting")
         end)
         wait(.25)
     end
     return Data
+end
+
+isnetworkowner = isnetworkowner or function(part)
+    if typeof(part) == "Instance" and part:IsA("BasePart") then
+        local Distance = math.clamp(game.Players.LocalPlayer.SimulationRadius,0,1250)
+        local MyDist = game.Players.LocalPlayer:DistanceFromCharacter(part.Position)
+        if MyDist < Distance then
+            for i,v in pairs(game.Players:GetPlayers()) do
+                if v:DistanceFromCharacter(part.Position) < MyDist and v ~= game.Players.LocalPlayer then
+                    return false
+                end
+            end
+            return true
+        end
+    end
 end
 
 BringMob = function(Pos, MonName)
