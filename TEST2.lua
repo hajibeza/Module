@@ -1137,15 +1137,16 @@ spawn(function()
         pcall(function()
             if Auto_Farm_Level then
                 local MyLevel = Local_Player.Data.Level.Value 
-                if MyLevel >= 21 and MyLevel < 50 then
-                    Farm:FastMon()
-                end
-                if MyLevel >= 50 and MyLevel < 300 then
-                    Farm:KillPlayer()
-                end
-                if MyLevel <= 20 or MyLevel > 300 then 
-                    Farm:Level()
-                end
+                -- if MyLevel >= 21 and MyLevel < 50 then
+                --     Farm:FastMon()
+                -- end
+                -- if MyLevel >= 50 and MyLevel < 300 then
+                --     Farm:KillPlayer()
+                -- end
+                -- if MyLevel <= 20 or MyLevel > 300 then 
+                --     Farm:Level()
+                -- end
+                Farm:Level()
             end
         end)
     end
