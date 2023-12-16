@@ -552,7 +552,7 @@ function Start_Attack(Entity_Name,Entity_Part,Expression)
     repeat task.wait(0.02)
         NeedAttacking = true
         Equip_Tool(Current_Weapon)
-        BringMob(Entity_CFrame.CFrame,v.Name)
+        BringMob(Entity_Part.CFrame,Entity_Name)
         Entity_Part.CanCollide = false
         TP(Entity_Part.CFrame * CFrame.new(0,30,0))
     until not Expression() or game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health <= 0
@@ -749,9 +749,9 @@ elseif ThirdSea then
                     if Check_Near_Mon(Mon_Cake) then
                         for i,v in pairs(workspace.Enemies:GetChildren()) do
                             if table.find(Mon_Cake,v.Name) and Check_Available_Mon(v) then
-                                    Start_Attack(v.Name,v.HumanoidRootPart,function(
-                                        return not Auto_Cake_Prince or Check_Near_Mon("Cake Prince") or not Check_Near_Mon(Mon_Cake) or not Check_Available_Mon(v)
-                                    ))
+                                Start_Attack(v.Name,v.HumanoidRootPart,function()
+                                    return not Auto_Cake_Prince or Check_Near_Mon("Cake Prince") or not Check_Near_Mon(Mon_Cake) or not Check_Available_Mon(v)
+                                end)
                             end
                         end
                     end
@@ -769,9 +769,9 @@ elseif ThirdSea then
 
                     for i,v in pairs(workspace.Enemies:GetChildren()) do
                         if v.Name == "Cake Prince" and Check_Available_Mon(v) then
-                            Start_Attack(v.Name,v.HumanoidRootPart,function(
+                            Start_Attack(v.Name,v.HumanoidRootPart,function()
                                 return not Auto_Cake_Prince or not Check_Near_Mon("Cake Prince") or not Check_Available_Mon(v)
-                            ))
+                            end)
                         end
                     end
                 end
