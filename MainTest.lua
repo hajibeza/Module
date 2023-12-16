@@ -428,11 +428,11 @@ function Check_Near_Mon(Monster)
             return v
         end
     end
-    -- for i,v in pairs(game.ReplicatedStorage:GetChildren()) do
-    --     if table.find(Table_Monster,v.Name) then    
-    --         return v
-    --     end
-    -- end
+    for i,v in pairs(game.ReplicatedStorage:GetChildren()) do
+        if table.find(Table_Monster,v.Name) then    
+            return v
+        end
+    end
     return nil
 end
 
@@ -528,6 +528,25 @@ function Equip_Tool(Tool)
     end
 end
 
+function Check_Raid_Chip()
+    local Backpack = game.Players.LocalPlayer.Backpack:GetChildren()
+    for i=1,#Backpack do local v = Backpack[i]
+        if v.Name:lower():find("microchip") then
+            return true
+        end
+    end
+    local Character = game.Players.LocalPlayer.Character:GetChildren()
+    for i=1,#Character do local v = Character[i]
+        if v:IsA("Tool") and v.Name:lower():find("microchip") then
+            return true
+        end
+    end
+end
+
+function Raiding()
+    return game.Players.LocalPlayer.PlayerGui.Main.Timer.Visible or StartingRaid
+end
+
 Double_Quest = true
 
 setscriptable(game.Players.LocalPlayer,"SimulationRadius",true)
@@ -560,6 +579,7 @@ local MIDN = MIDN:Window("RIPPER HUB Mobile Script")
 local MIDNServer = MIDN:Server("Blox Fruit",7040391851)
 
 local MainTab = MIDNServer:Channel("Main")
+local RaidTab = MIDNServer:Channel("Raid")
 
 MainTab:Toggle("Auto Farm Level",false,function(value)
 	Auto_Farm_Level = value
@@ -698,7 +718,7 @@ elseif ThirdSea then
     end)
 
     spawn(function()
-        while wait() do
+        while wait(.1) do
             if Auto_Cake_Prince then
                 Noclip(true)
 
@@ -730,7 +750,11 @@ elseif ThirdSea then
                 if Check_Near_Mon("Cake Prince") then
 
                     if not workspace.Enemies:FindFirstChild("Cake Prince") then
-                        TP(game.ReplicatedStorage:FindFirstChild("Cake Prince").HumanoidRootPart.CFrame)
+                        repeat wait()
+                            if game.ReplicatedStorage:FindFirstChild("Cake Prince") then
+                                TP(game.ReplicatedStorage:FindFirstChild("Cake Prince").HumanoidRootPart.CFrame)
+                            end
+                        until not Auto_Cake_Prince or not Check_Near_Mon("Cake Prince")
                     end
 
                     for i,v in pairs(workspace.Enemies:GetChildren()) do
@@ -755,21 +779,23 @@ MainTab:Line()
 
 MainTab:Label("Setting Farm")
 
-MainTab:Toggle("Fast Attack",false,function(value)
+MainTab:Toggle("Fast Attack",true,function(value)
 	NeedAttacking = value
     NewFastAttack = value
     NoAttackAnimation = value
 end)
 
-MainTab:Toggle("Fast Attack",false,function(value)
+MainTab:Toggle("Auto Buso",true,function(value)
     Auto_Buso = value
-    while wait() do
-        if Auto_Buso then
-            if not game.Players.LocalPlayer.Character:FindFirstChild("HasBuso") then
-                Use_Remote("Buso")
-            end 
+    spawn(function()
+        while wait() do
+            if Auto_Buso then
+                if not game.Players.LocalPlayer.Character:FindFirstChild("HasBuso") then
+                    Use_Remote("Buso")
+                end 
+            end
         end
-    end
+    end)
 end)
 
 local Code = {
@@ -1002,7 +1028,7 @@ task.spawn(function()
             Controller = Data.activeController
             if NormalClick then
                 pcall(task.spawn,Controller.attack,Controller)
-                -- continue
+                continue
             end
             if Controller and Controller.equipped and (not Char.Busy.Value or game.Players.LocalPlayer.PlayerGui.Main.Dialogue.Visible) and Char.Stun.Value < 1 and Controller.currentWeaponModel then
                 if (NeedAttacking or DamageAura) then
@@ -1014,7 +1040,7 @@ task.spawn(function()
                         Controller.hitboxMagnitude = 65
                         pcall(task.spawn,Controller.attack,Controller)
                         lastFireValid = tick()
-                        -- continue
+                        continue
                     end
                     local AID3 = Controller.anims.basic[3]
                     local AID2 = Controller.anims.basic[2]
@@ -1028,6 +1054,88 @@ task.spawn(function()
                         Playing:Stop()
                     end)
                 end
+            end
+        end
+    end
+end)
+
+-- [Raid] --
+
+local All_Raid_Chip = {}
+local All_Raid = require(game:GetService("ReplicatedStorage").Raids)
+local Advance_Raid = All_Raid.advancedRaids
+local Normal_Raid = All_Raid.raids
+
+for i,v in pairs(Advance_Raid) do
+    table.insert(All_Raid_Chip,v) 
+end
+for i,v in pairs(Normal_Raid) do
+    table.insert(All_Raid_Chip,v)
+end
+
+local Chip_Dropdown = RaidTab:Dropdown("Select Dungeon",All_Raid_Chip, function(value)
+    Raid_Chip = value
+end)
+
+RaidTab:Toggle("Auto Start Raid",false,function(value)
+	Auto_Start_Raid = value
+    Noclip(false)
+end)
+
+spawn(function()
+    while wait(.1) do
+        if Auto_Start_Raid then
+
+            if not Check_Raid_Chip() then
+                Use_Remote("RaidsNpc","Select",Raid_Chip)
+            end
+
+            if Check_Raid_Chip() and not Raiding() then
+                fireclickdetector(workspace.Map:FindFirstChild("RaidSummon2",true).Button.Main.ClickDetector)
+                local ID = game:GetService("HttpService"):GenerateGUID()
+                RaidID = ID
+                JustStarted = true 
+                task.delay(60,function()
+                    if RaidID == ID then
+                        JustStarted = false
+                    end
+                end)
+            end
+        end
+    end
+end)
+
+RaidTab:Toggle("Auto Finish Raid",false,function(value)
+	Auto_Finish_Raid = value
+    Noclip(false)
+end)
+
+function Kill_Aura()
+    for i,v in pairs(workspace.Enemies:GetChildren()) do
+        if Check_Available_Mon(v) then
+            repeat wait()
+                v.Humanoid.Health = 0
+                v.HumanoidRootPart.CanCollide = false
+            until not Auto_Finish_Raid or not Check_Available_Mon(v)
+        end
+    end
+end
+
+spawn(function()
+    while wait() do
+        if Auto_Finish_Raid and Raiding() then
+            Noclip(true)
+            Kill_Aura()
+            if game:GetService("Workspace")["_WorldOrigin"].Locations:FindFirstChild("Island 5") and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - game:GetService("Workspace")["_WorldOrigin"].Locations["Island 5"].Position).Magnitude <= 3000 then
+                TP(game:GetService("Workspace")["_WorldOrigin"].Locations:FindFirstChild("Island 5").CFrame * CFrame.new(0,70,100))
+            elseif game:GetService("Workspace")["_WorldOrigin"].Locations:FindFirstChild("Island 4") and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - game:GetService("Workspace")["_WorldOrigin"].Locations["Island 4"].Position).Magnitude <= 3000 then
+                TP(game:GetService("Workspace")["_WorldOrigin"].Locations:FindFirstChild("Island 4").CFrame * CFrame.new(0,70,100))
+            elseif game:GetService("Workspace")["_WorldOrigin"].Locations:FindFirstChild("Island 3") and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - game:GetService("Workspace")["_WorldOrigin"].Locations["Island 3"].Position).Magnitude <= 3000 then
+                TP(game:GetService("Workspace")["_WorldOrigin"].Locations:FindFirstChild("Island 3").CFrame * CFrame.new(0,70,100))
+            elseif game:GetService("Workspace")["_WorldOrigin"].Locations:FindFirstChild("Island 2") and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - game:GetService("Workspace")["_WorldOrigin"].Locations["Island 2"].Position).Magnitude <= 3000 then
+                TP(game:GetService("Workspace")["_WorldOrigin"].Locations:FindFirstChild("Island 2").CFrame * CFrame.new(0,70,100))
+            elseif game:GetService("Workspace")["_WorldOrigin"].Locations:FindFirstChild("Island 1") and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - game:GetService("Workspace")["_WorldOrigin"].Locations["Island 1"].Position).Magnitude <= 3000 then
+                TP(game:GetService("Workspace")["_WorldOrigin"].Locations:FindFirstChild("Island 1").CFrame * CFrame.new(0,70,100))
             end
         end
     end
