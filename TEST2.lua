@@ -552,10 +552,10 @@ function Start_Attack(Entity_Name,Entity_Part,Expression)
     repeat task.wait(0.02)
         NeedAttacking = true
         Equip_Tool(Current_Weapon)
-        BringMob(Entity_CFrame.CFrame,v.Name)
+        BringMob(Entity_Part.CFrame,Entity_Name)
         Entity_Part.CanCollide = false
         TP(Entity_Part.CFrame * CFrame.new(0,30,0))
-    until not Expression() or game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health <= 0
+    until Expression() or game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health <= 0
     NeedAttacking = false
 end
 
