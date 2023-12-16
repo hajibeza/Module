@@ -698,7 +698,7 @@ elseif ThirdSea then
     end)
 
     spawn(function()
-        while wait() do
+        while wait(.1) do
             if Auto_Cake_Prince then
                 Noclip(true)
 
@@ -730,7 +730,11 @@ elseif ThirdSea then
                 if Check_Near_Mon("Cake Prince") then
 
                     if not workspace.Enemies:FindFirstChild("Cake Prince") then
-                        TP(game.ReplicatedStorage:FindFirstChild("Cake Prince").HumanoidRootPart.CFrame)
+                        repeat wait()
+                            if game.ReplicatedStorage:FindFirstChild("Cake Prince") then
+                                TP(game.ReplicatedStorage:FindFirstChild("Cake Prince").HumanoidRootPart.CFrame)
+                            end
+                        until not Auto_Cake_Prince or not Check_Near_Mon("Cake Prince")
                     end
 
                     for i,v in pairs(workspace.Enemies:GetChildren()) do
