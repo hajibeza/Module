@@ -528,6 +528,25 @@ function Equip_Tool(Tool)
     end
 end
 
+function Check_Raid_Chip()
+    local Backpack = game.Players.LocalPlayer.Backpack:GetChildren()
+    for i=1,#Backpack do local v = Backpack[i]
+        if v.Name:lower():find("microchip") then
+            return true
+        end
+    end
+    local Character = game.Players.LocalPlayer.Character:GetChildren()
+    for i=1,#Character do local v = Character[i]
+        if v:IsA("Tool") and v.Name:lower():find("microchip") then
+            return true
+        end
+    end
+end
+
+function Raiding()
+    return game.Players.LocalPlayer.PlayerGui.Main.Timer.Visible or StartingRaid
+end
+
 Double_Quest = true
 
 setscriptable(game.Players.LocalPlayer,"SimulationRadius",true)
@@ -560,6 +579,8 @@ local MIDN = MIDN:Window("RIPPER HUB Mobile Script")
 local MIDNServer = MIDN:Server("Blox Fruit",7040391851)
 
 local MainTab = MIDNServer:Channel("Main")
+local StatsTab = MIDNServer:Channel("Stats")
+local RaidTab = MIDNServer:Channel("Raid")
 
 MainTab:Toggle("Auto Farm Level",false,function(value)
 	Auto_Farm_Level = value
@@ -978,9 +999,9 @@ task.spawn(function()
         }
         AttackCD = tick() + (fucker and Cooldown[WeaponName:lower()] or fucker or 0.285) + ((TryLag/MaxLag)*0.3)
         RigEvent.FireServer(RigEvent,"weaponChange",WeaponName)
-        TryLag = TryLag + 1
+        TryLag += 1
         task.delay((fucker or 0.285) + (TryLag+0.5/MaxLag)*0.3,function()
-            TryLag = TryLag - 1
+            TryLag -= 1
         end)
     end
 
@@ -1010,7 +1031,7 @@ task.spawn(function()
                 pcall(task.spawn,Controller.attack,Controller)
                 continue
             end
-            if Controller and Controller.equipped and (not Char.Busy.Value or game.Players.LocalPlayer.PlayerGui.Main.Dialogue.Visible) and Char.Stun.Value < 1 and Controller.currentWeaponModel then
+            if Controller and Controller.equipped and (not game.Players.LocalPlayer.Character.Busy.Value or game.Players.LocalPlayer.PlayerGui.Main.Dialogue.Visible) and game.Players.LocalPlayer.Character.Stun.Value < 1 and Controller.currentWeaponModel then
                 if (NeedAttacking or DamageAura) then
                     if NewFastAttack and tick() > AttackCD and not DisableFastAttack then
                         resetCD()
@@ -1034,6 +1055,132 @@ task.spawn(function()
                         Playing:Stop()
                     end)
                 end
+            end
+        end
+    end
+end)
+
+-- [Stats] --
+
+StatsTab:Toggle("Auto Stats Kaitun [Fruit]",false,function(value)
+	Auto_Stats_Kaitun_Sword = value
+end)
+
+StatsTab:Toggle("Auto Stats Kaitun [Gun]",false,function(value)
+	Auto_Stats_Kaitun_Gun = value
+end)
+
+StatsTab:Toggle("Auto Stats Kaitun [Devil Fruit]",false,function(value)
+	Auto_Stats_Kaitun_Devil_Fruit = value
+end)
+
+StatsTab:Line()
+
+StatsTab:Toggle("Auto Stats Kaitun [Devil Fruit]",false,function(value)
+	Auto_Stats_Kaitun_Devil_Fruit = value
+end)
+
+spawn(function()
+    while wait(.5) do
+        pcall(function()
+            if Auto_Stats_Kaitun_Sword or Auto_Stats_Kaitun_Gun or Auto_Stats_Kaitun_Devil_Fruit then
+                if game.Players.LocalPlayer.Data.Stats.Defense.Level.Value == 2450 then return end
+                if game.Players.LocalPlayer.Data.Stats.Melee.Level.Value < 2450 then
+                    Use_Remote("AddPoint","Melee",Stats_Point)
+                end
+                if game.Players.LocalPlayer.Data.Stats.Melee.Level.Value == 2450 then
+                    Use_Remote("AddPoint","Defense",Stats_Point)
+                end
+                if game.Players.LocalPlayer.Data.Stats.Defense.Level.Value == 2450 then
+                    if Auto_Stats_Kaitun_Sword then Use_Remote("AddPoint","Sword",Stats_Point) end
+                    if Auto_Stats_Kaitun_Gun then Use_Remote("AddPoint","Gun",Stats_Point) end
+                    if Auto_Stats_Kaitun_Devil_Fruit then Use_Remote("AddPoint","Demon Fruit",Stats_Point) end
+                end
+            end
+        end)
+    end
+end)
+
+-- [Raid] --
+
+local All_Raid_Chip = {}
+local All_Raid = require(game:GetService("ReplicatedStorage").Raids)
+local Advance_Raid = All_Raid.advancedRaids
+local Normal_Raid = All_Raid.raids
+
+for i,v in pairs(Advance_Raid) do
+    table.insert(All_Raid_Chip,v) 
+end
+for i,v in pairs(Normal_Raid) do
+    table.insert(All_Raid_Chip,v)
+end
+
+local Chip_Dropdown = RaidTab:Dropdown("Select Dungeon",All_Raid_Chip, function(value)
+    Raid_Chip = value
+end)
+
+RaidTab:Line()
+
+RaidTab:Toggle("Auto Start Raid",false,function(value)
+	Auto_Start_Raid = value
+    Noclip(false)
+end)
+
+spawn(function()
+    while wait(1) do
+        if Auto_Start_Raid then
+
+            if not Check_Raid_Chip() then
+                Use_Remote("RaidsNpc","Select",Raid_Chip)
+            end
+
+            if Check_Raid_Chip() and not Raiding() then
+                wait(3)
+                fireclickdetector(workspace.Map:FindFirstChild("RaidSummon2",true).Button.Main.ClickDetector)
+                local ID = game:GetService("HttpService"):GenerateGUID()
+                RaidID = ID
+                StartingRaid = true 
+                task.delay(60,function()
+                    if RaidID == ID then
+                        StartingRaid = false
+                    end
+                end)
+            end
+        end
+    end
+end)
+
+RaidTab:Toggle("Auto Finish Raid",false,function(value)
+	Auto_Finish_Raid = value
+    Noclip(false)
+end)
+
+function Kill_Aura()
+    for i,v in pairs(workspace.Enemies:GetChildren()) do
+        if Check_Available_Mon(v) then
+            repeat wait()
+                v.Humanoid.Health = 0
+                v.HumanoidRootPart.CanCollide = false
+            until not Auto_Finish_Raid or not Check_Available_Mon(v)
+        end
+    end
+end
+
+spawn(function()
+    while wait(1) do
+        if Auto_Finish_Raid and Raiding() then
+            Noclip(true)
+            Kill_Aura()
+            if game:GetService("Workspace")["_WorldOrigin"].Locations:FindFirstChild("Island 5") and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - game:GetService("Workspace")["_WorldOrigin"].Locations["Island 5"].Position).Magnitude <= 3000 then
+                TP(game:GetService("Workspace")["_WorldOrigin"].Locations:FindFirstChild("Island 5").CFrame * CFrame.new(0,70,100))
+            elseif game:GetService("Workspace")["_WorldOrigin"].Locations:FindFirstChild("Island 4") and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - game:GetService("Workspace")["_WorldOrigin"].Locations["Island 4"].Position).Magnitude <= 3000 then
+                TP(game:GetService("Workspace")["_WorldOrigin"].Locations:FindFirstChild("Island 4").CFrame * CFrame.new(0,70,100))
+            elseif game:GetService("Workspace")["_WorldOrigin"].Locations:FindFirstChild("Island 3") and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - game:GetService("Workspace")["_WorldOrigin"].Locations["Island 3"].Position).Magnitude <= 3000 then
+                TP(game:GetService("Workspace")["_WorldOrigin"].Locations:FindFirstChild("Island 3").CFrame * CFrame.new(0,70,100))
+            elseif game:GetService("Workspace")["_WorldOrigin"].Locations:FindFirstChild("Island 2") and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - game:GetService("Workspace")["_WorldOrigin"].Locations["Island 2"].Position).Magnitude <= 3000 then
+                TP(game:GetService("Workspace")["_WorldOrigin"].Locations:FindFirstChild("Island 2").CFrame * CFrame.new(0,70,100))
+            elseif game:GetService("Workspace")["_WorldOrigin"].Locations:FindFirstChild("Island 1") and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - game:GetService("Workspace")["_WorldOrigin"].Locations["Island 1"].Position).Magnitude <= 3000 then
+                TP(game:GetService("Workspace")["_WorldOrigin"].Locations:FindFirstChild("Island 1").CFrame * CFrame.new(0,70,100))
             end
         end
     end
