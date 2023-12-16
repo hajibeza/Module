@@ -549,14 +549,17 @@ end
 
 function Start_Attack(Entity_Name,Entity_Part,Expression)
     local Expression = Expression or function() return true end
-    repeat task.wait(0.02)
-        Noclip(true)
-        NeedAttacking = true
-        Equip_Tool(Current_Weapon)
-        BringMob(Entity_Part.CFrame,Entity_Name)
-        Entity_Part.CanCollide = false
-        TP(Entity_Part.CFrame * CFrame.new(0,30,0))
-    until not v.Parent or Human.Health <= 1 or Expression()
+    local Success,Error = pcall(function()
+        repeat task.wait(0.02)
+            Noclip(true)
+            NeedAttacking = true
+            Equip_Tool(Current_Weapon)
+            BringMob(Entity_Part.CFrame,Entity_Name)
+            Entity_Part.CanCollide = false
+            TP(Entity_Part.CFrame * CFrame.new(0,30,0))
+        until Expression()
+    end)
+    if not Success then warn(Error) end
     NeedAttacking = false
 end
 
@@ -641,12 +644,9 @@ spawn(function()
                 if Check_Near_Mon(Data[Level].Mon) then 
                     for i,v in pairs(workspace.Enemies:GetChildren()) do
                         if v.Name == Data[Level].Mon and Check_Available_Mon(v) then 
-                            repeat task.wait(0.02)
-                                Equip_Tool(Current_Weapon)
-                                BringMob(v.HumanoidRootPart.CFrame,v.Name)
-                                v.HumanoidRootPart.CanCollide = false
-                                TP(v.HumanoidRootPart.CFrame * CFrame.new(0,30,0))
-                            until not Auto_Farm_Level or not Check_Available_Mon(v) or not game.Players.LocalPlayer.PlayerGui.Main.Quest.Visible
+                            Start_Attack(v.Name,v.HumanoidRootPart,function()
+                                return not Auto_Farm_Level or not Check_Available_Mon(v) or not game.Players.LocalPlayer.PlayerGui.Main.Quest.Visible
+                            end)
                         end
                     end
                 end
@@ -701,11 +701,9 @@ if FirstSea then
                     if Check_Near_Mon("Ice Admiral [Lv. 700] [Boss]") then
                         for i,v in pairs(workspace.Enemies:GetChildren()) do
                             if v.Name == "Ice Admiral [Lv. 700] [Boss]" and Check_Available_Mon(v) then
-                                repeat task.wait(0.02)
-                                    Equip_Tool(Current_Weapon)
-                                    v.HumanoidRootPart.CanCollide = false
-                                    TP(v.HumanoidRootPart.CFrame * CFrame.new(0,30,0))
-                                until not Auto_Second_Sea or not Check_Available_Mon(v) 
+                                Start_Attack(v.Name,v.HumanoidRootPart,function()
+                                    return not Auto_Second_Sea or not Check_Near_Mon("Ice Admiral [Lv. 700] [Boss]") or not Check_Available_Mon(v)
+                                end)
                             end
                         end
                     end
@@ -750,7 +748,7 @@ elseif ThirdSea then
                         for i,v in pairs(workspace.Enemies:GetChildren()) do
                             if table.find(Mon_Cake,v.Name) and Check_Available_Mon(v) then
                                 Start_Attack(v.Name,v.HumanoidRootPart,function()
-                                    return not Auto_Cake_Prince or Check_Near_Mon("Cake Prince") or not Check_Near_Mon(Mon_Cake) or not Check_Available_Mon(v)
+                                    return not Auto_Cake_Prince or not Check_Near_Mon(Mon_Cake) or not Check_Available_Mon(v)
                                 end)
                             end
                         end
