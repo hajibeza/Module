@@ -549,17 +549,44 @@ end
 
 function Start_Attack(Entity_Name,Entity_Part,Expression)
     local Expression = Expression or function() return true end
-    repeat task.wait(0.02)
-        NeedAttacking = true
-        Equip_Tool(Current_Weapon)
-        BringMob(Entity_Part.CFrame,Entity_Name)
-        Entity_Part.CanCollide = false
-        TP(Entity_Part.CFrame * CFrame.new(0,30,0))
-    until Expression() or game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health <= 0
+    local Success,Error = pcall(function()
+        repeat task.wait(0.02)
+            Noclip(true)
+            NeedAttacking = true
+            Equip_Tool(Current_Weapon)
+            BringMob(Entity_Part.CFrame,Entity_Name)
+            Entity_Part.CanCollide = false
+            TP(Entity_Part.CFrame * CFrame.new(0,30,0))
+        until Expression()
+    end)
+    if not Success then warn(Error) end
     NeedAttacking = false
 end
 
-Double_Quest = true
+function Server_Hop(Value)
+	pcall(function()
+        local Massage = Instance.new("Message",workspace)
+        Massage.Text = "Server Hop | "..Value
+		for count = math.random(1, math.random(40, 75)), 100 do
+			remote = game:GetService("ReplicatedStorage").__ServerBrowser:InvokeServer(count)
+			for _i ,v in pairs(remote) do
+				if tonumber(v['Count']) < 12 then
+					game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, _i)
+				end
+			end    
+		end
+	end)
+end
+
+function Check_Any_Remote(Name)
+    local Remote_Inventory = Use_Remote("getInventory")
+    for i,v in pairs(Remote_Inventory) do
+        if v.Name == Name then
+            return true
+        end
+    end
+    return false
+end
 
 setscriptable(game.Players.LocalPlayer,"SimulationRadius",true)
 spawn(function()
@@ -640,12 +667,9 @@ spawn(function()
                 if Check_Near_Mon(Data[Level].Mon) then 
                     for i,v in pairs(workspace.Enemies:GetChildren()) do
                         if v.Name == Data[Level].Mon and Check_Available_Mon(v) then 
-                            repeat task.wait(0.02)
-                                Equip_Tool(Current_Weapon)
-                                BringMob(v.HumanoidRootPart.CFrame,v.Name)
-                                v.HumanoidRootPart.CanCollide = false
-                                TP(v.HumanoidRootPart.CFrame * CFrame.new(0,30,0))
-                            until not Auto_Farm_Level or not Check_Available_Mon(v) or not game.Players.LocalPlayer.PlayerGui.Main.Quest.Visible
+                            Start_Attack(v.Name,v.HumanoidRootPart,function()
+                                return not Auto_Farm_Level or not Check_Available_Mon(v) or not game.Players.LocalPlayer.PlayerGui.Main.Quest.Visible
+                            end)
                         end
                     end
                 end
@@ -700,11 +724,100 @@ if FirstSea then
                     if Check_Near_Mon("Ice Admiral [Lv. 700] [Boss]") then
                         for i,v in pairs(workspace.Enemies:GetChildren()) do
                             if v.Name == "Ice Admiral [Lv. 700] [Boss]" and Check_Available_Mon(v) then
-                                repeat task.wait(0.02)
-                                    Equip_Tool(Current_Weapon)
-                                    v.HumanoidRootPart.CanCollide = false
-                                    TP(v.HumanoidRootPart.CFrame * CFrame.new(0,30,0))
-                                until not Auto_Second_Sea or not Check_Available_Mon(v) 
+                                Start_Attack(v.Name,v.HumanoidRootPart,function()
+                                    return not Auto_Second_Sea or not Check_Near_Mon("Ice Admiral [Lv. 700] [Boss]") or not Check_Available_Mon(v)
+                                end)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end)
+
+elseif SecondSea then
+
+    MainTab:Toggle("Auto Third Sea",false,function(value)
+        Auto_Third_Sea = value
+        Noclip(false)
+    end)
+
+    spawn(function()
+        while wait(.1) do
+            if Auto_Third_Sea then
+                if not SecondSea then return end
+                local Remote_Rip = Use_Remote("ZQuestProgress")
+                local Remote_Check_Rip = Use_Remote("ZQuestProgress","Check")
+                local Remote_Swan = Use_Remote("GetUnlockables")
+
+                Noclip(true)
+
+                if Remote_Rip.KilledIndraBoss then Use_Remote("TravelZou") end
+
+                if not Remote_Rip.KilledIndraBoss then
+
+                    if not Remote_Swan.FlamingoAccess then
+                        local Remote_Inventory = Use_Remote("getInventoryFruits")
+                        local Cheapest_Fruit = {Price = 1/0}
+
+                        for i,v in pairs(Remote_Inventory) do
+                            if v.Price >= 1000000 and v.Price < Cheapest_Fruit.Price then
+                                Cheapest_Fruit = v
+                            end
+                        end
+
+                        if Cheapest_Fruit.Name then
+                            Use_Remote("LoadFruit",Cheapest_Fruit.Name)
+                            Use_Remote("TalkTrevor","1")
+                            Use_Remote("TalkTrevor","2")
+                            Use_Remote("TalkTrevor","3")
+                        end
+                    end
+
+                    if not Remote_Check_Rip and Remote_Swan.FlamingoAccess then
+                        
+                        if not Check_Near_Mon("Don Swan [Lv. 1000] [Boss]") and Enable_Server_Hop then
+                            Server_Hop("Finding Don Swan")
+                        end
+
+                        if Check_Near_Mon("Don Swan [Lv. 1000] [Boss]") then
+
+                            if game.ReplicatedStorage:FindFirstChild("Don Swan [Lv. 1000] [Boss]") then
+                                repeat task.wait(.1)
+                                    TP(game:GetService("ReplicatedStorage")["Don Swan [Lv. 1000] [Boss]"].HumanoidRootPart.CFrame)
+                                until workspace.Enemies:FindFirstChild("Don Swan [Lv. 1000] [Boss]") or not Auto_Third_Sea
+                            end
+
+                            for i,v in pairs(workspace.Enemies:GetChildren()) do
+                                if v.Name == "Don Swan [Lv. 1000] [Boss]" and Check_Available_Mon(v) then
+                                    Start_Attack(v.Name,v.HumanoidRootPart,function()
+                                        return not Auto_Third_Sea or not Check_Near_Mon("Don Swan [Lv. 1000] [Boss]") or not Check_Available_Mon(v)
+                                    end)
+                                end
+                            end
+                        end
+                    end
+
+                    if Remote_Check_Rip then
+                        
+                        if not Check_Near_Mon("rip_indra [Lv. 1500] [Boss]") and Enable_Server_Hop then
+                            Server_Hop("Finding Rip_Indra")
+                        end
+
+                        if Check_Near_Mon("rip_indra [Lv. 1500] [Boss]") then
+
+                            if game.ReplicatedStorage:FindFirstChild("rip_indra [Lv. 1500] [Boss]") then
+                                repeat task.wait(.1)
+                                    TP(game:GetService("ReplicatedStorage")["rip_indra [Lv. 1500] [Boss]"].HumanoidRootPart.CFrame)
+                                until workspace.Enemies:FindFirstChild("rip_indra [Lv. 1500] [Boss]") or not Auto_Third_Sea
+                            end
+
+                            for i,v in pairs(workspace.Enemies:GetChildren()) do
+                                if v.Name == "rip_indra [Lv. 1500] [Boss]" and Check_Available_Mon(v) then
+                                    Start_Attack(v.Name,v.HumanoidRootPart,function()
+                                        return not Auto_Third_Sea or not Check_Near_Mon("rip_indra [Lv. 1500] [Boss]") or not Check_Available_Mon(v)
+                                    end)
+                                end
                             end
                         end
                     end
@@ -721,7 +834,217 @@ MainTab:Label("Misc Farm")
 
 if FirstSea then
 
+    MainTab:Toggle("Auto Pole [V1]",false,function(value)
+        Auto_Saber = value
+        Noclip(false)
+    end)
+
+    spawn(function()
+        while wait(.1) do 
+            if Auto_Saber then
+                local Remote_Check_Saber = Use_Remote("ProQuestProgress")
+                local QuestPlates_Folder = workspace.Map.Jungle.QuestPlates
+
+                Noclip(true)
+
+                if not FirstSea then return end
+                if Remote_Check_Saber.KilledShanks and not Auto_Farm_Level_Other then return end
+                if Remote_Check_Saber.KilledShanks and Auto_Farm_Level_Other then Auto_Farm_Level = true end
+                if Auto_Farm_Level_Other and game.Players.LocalPlayer.Data.Level.Value >= 200 then Auto_Farm_Level = false end
+                if game.Players.LocalPlayer.Data.Level.Value <= 200 then return end
+
+                for i = 1,#Remote_Check_Saber.Plates do
+                    if not Remote_Check_Saber.Plates[i] then
+                        Use_Remote("ProQuestProgress","Plate",i)
+                    end
+                end
+
+                if not Remote_Check_Saber.KilledShanks then
+                    if not Remote_Check_Saber.UsedTorch then 
+                        repeat wait() Use_Remote("ProQuestProgress","GetTorch") until game.Players.LocalPlayer.Backpack:FindFirstChild("Torch") 
+                        repeat wait() Use_Remote("ProQuestProgress","DestroyTorch") until not game.Players.LocalPlayer.Backpack:FindFirstChild("Torch")
+                    end
+
+                    if Remote_Check_Saber.UsedTorch and not Remote_Check_Saber.UsedCup then
+                        repeat wait() Use_Remote("ProQuestProgress","GetCup") until game.Players.LocalPlayer.Backpack:FindFirstChild("Cup")
+                        repeat wait() Use_Remote("ProQuestProgress","FillCup",game.Players.LocalPlayer.Backpack.Cup) Use_Remote("ProQuestProgress","SickMan") until not game.Players.LocalPlayer.Backpack:FindFirstChild("Cup")
+                    end
+
+                    if Remote_Check_Saber.UsedCup and not Remote_Check_Saber.TalkedSon then
+                        Use_Remote("ProQuestProgress","RichSon")
+                    end
+
+                    if Remote_Check_Saber.TalkedSon and not Remote_Check_Saber.KilledMob then
+                        local Mon_Leader = "Mob Leader [Lv. 120] [Boss]"
+
+                        if game.ReplicatedStorage:FindFirstChild(Mon_Leader) then
+                            repeat task.wait(.1)
+                                toTarget(game:GetService("ReplicatedStorage")[Mon_Leader].HumanoidRootPart.CFrame)
+                            until workspace.Enemies:FindFirstChild(Mon_Leader) or not Auto_Saber
+                        end
+
+                        if Check_Near_Mon(Mon_Leader) then
+                            for i,v in pairs(workspace.Enemies:GetChildren()) do
+                                if v.Name == Mon_Leader and Check_Available_Mon(v) then
+                                    Start_Attack(v.Name,v.HumanoidRootPart,function()
+                                        return not Auto_Saber or not Check_Near_Mon(Mon_Leader) or not Check_Available_Mon(v)
+                                    end)
+                                end
+                            end
+                        end
+                    end
+
+                    if Remote_Check_Saber.KilledMob and not Remote_Check_Saber.UsedRelic then
+                        repeat wait() Use_Remote("ProQuestProgress","RichSon") until game.Players.LocalPlayer.Backpack:FindFirstChild("Relic")
+                        repeat wait() Use_Remote("ProQuestProgress","PlaceRelic") until not game.Players.LocalPlayer.Backpack:FindFirstChild("Relic")
+                    end
+
+                    if Remote_Check_Saber.UsedRelic and not Remote_Check_Saber.KilledShanks then
+                        local Saber_Expert = "Saber Expert [Lv. 200] [Boss]"
+
+                        if not game.ReplicatedStorage:FindFirstChild(Saber_Expert) then
+                            repeat task.wait(.1)
+                                toTarget(game:GetService("ReplicatedStorage")[Saber_Expert].HumanoidRootPart.CFrame)
+                            until workspace.Enemies:FindFirstChild(Saber_Expert) or not Auto_Saber
+                        end
+
+                        if Check_Near_Mon(Saber_Expert) then
+                            for i,v in pairs(workspace.Enemies:GetChildren()) do
+                                if v.Name == Saber_Expert and Check_Available_Mon(v) then
+                                    Start_Attack(v.Name,v.HumanoidRootPart,function()
+                                        return not Auto_Saber or not Check_Near_Mon(Saber_Expert) or not Check_Available_Mon(v) or Remote_Check_Saber.KilledMob
+                                    end)
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end)
+
+    MainTab:Toggle("Auto Pole [V1]",false,function(value)
+        Auto_Pole = value
+        Noclip(false)
+    end)
+
+    spawn(function()
+        while wait(.1) do
+            pcall(function()
+                if Auto_Pole then
+
+                    if Check_Any_Remote("Pole (1st Form)") then return end
+                    if not FirstSea then return end
+
+                    Noclip(true)
+
+                    local Thunder_God = "Thunder God [Lv. 575] [Boss]"
+                   
+                    if not Check_Near_Mon(Thunder_God) and Enable_Server_Hop then
+                        Server_Hop("Finding Thunder God")
+                    end
+
+                    if game.ReplicatedStorage:FindFirstChild(Thunder_God) then
+                        repeat task.wait(.1)
+                            toTarget(game:GetService("ReplicatedStorage")[Thunder_God].HumanoidRootPart.CFrame)
+                        until workspace.Enemies:FindFirstChild(Thunder_God) or not Auto_Pole
+                    end
+
+                    if Check_Near_Mon(Thunder_God) then
+                        for i,v in pairs(workspace.Enemies:GetChildren()) do
+                            if v.Name == Thunder_God and Check_Available_Mon(v) then
+                                Start_Attack(v.Name,v.HumanoidRootPart,function()
+                                    return not Auto_Pole or not Check_Near_Mon(Thunder_God) or Check_Any_Remote("Pole (1st Form)") or not Check_Available_Mon(v)
+                                end)
+                            end
+                        end
+                    end
+                end
+            end)
+        end
+    end)
+
 elseif SecondSea then
+
+    MainTab:Toggle("Auto Factory",false,function(value)
+        Auto_Factory = value
+        Noclip(false)
+    end)
+
+    spawn(function()
+        while wait() do
+            if Auto_Factory then
+                if not SecondSea then return end
+                local Factory = "Core"
+                
+                Noclip(true)
+
+                if not Check_Near_Mon(Factory) and Enable_Server_Hop then    
+                    Server_Hop("Finding Factory")
+                end
+
+                if not game:GetService("ReplicatedStorage"):FindFirstChild(Factory) then
+                    repeat task.wait(.1)
+                        toTarget(game:GetService("ReplicatedStorage")[Factory].HumanoidRootPart.CFrame)
+                    until workspace.Enemies:FindFirstChild(Factory) or not Auto_Factory
+                end
+
+                if Check_Near_Mon(Factory) then
+                    for i,v in pairs(workspace.Enemies:GetChildren()) do
+                        if v.Name == Factory and Check_Available_Mon(v) then
+                            Start_Attack(v.Name,v.HumanoidRootPart,function()
+                                return not Auto_Factory or not Check_Near_Mon(Factory) or not Check_Available_Mon(v)
+                            end)
+                        end
+                    end
+                end
+            end
+        end
+    end)
+
+    MainTab:Toggle("Auto Rengoku",false,function(value)
+        Auto_Rengoku = value
+        Noclip(false)
+    end)
+
+    spawn(function()
+        while wait(.1) do
+            if Auto_Rengoku then
+                if not SecondSea then return end
+                local Remote_Rengoku = Use_Remote("OpenRengoku")
+
+                Noclip(true)
+
+                if Remote_Rengoku then return end
+                
+                if game.Players.LocalPlayer.Backpack:FindFirstChild("Hidden Key") then
+                    repeat wait()
+                        Use_Remote("OpenRengoku")
+                    until not game.Players.LocalPlayer.Backpack:FindFirstChild("Hidden Key")
+                end
+
+                if not game.Players.LocalPlayer.Backpack:FindFirstChild("Hidden Key") then
+                    local Rengoku_Mon = {"Snow Lurker [Lv. 1375]","Arctic Warrior [Lv. 1350]"}
+
+                    if not Check_Near_Mon(Rengoku_Mon) then
+                        repeat task.wait(.1)
+                            TP(CFrame.new(5439.716796875, 84.420944213867, -6715.1635742188))
+                        until workspace.Enemies:FindFirstChild(Rengoku_Mon) or not Auto_Rengoku
+                    end
+
+                    if Check_Near_Mon(Rengoku_Mon) then
+                        for i,v in pairs(workspace.Enemies:GetChildren()) do
+                            if table.find(Rengoku_Mon,v.Name) and Check_Available_Mon(v) then 
+                                Start_Attack(v.Name,v.HumanoidRootPart,function()
+                                    return not Auto_Rengoku or not Check_Near_Mon(Rengoku_Mon) or not Check_Available_Mon(v) or game.Players.LocalPlayer.Backpack:FindFirstChild("Hidden Key")
+                                end)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end)
 
 elseif ThirdSea then
 
@@ -733,7 +1056,6 @@ elseif ThirdSea then
     spawn(function()
         while wait(.1) do
             if Auto_Cake_Prince then
-                Noclip(true)
 
                 local Remote_Cake_Prince = Use_Remote("CakePrinceSpawner")
 
@@ -750,7 +1072,7 @@ elseif ThirdSea then
                         for i,v in pairs(workspace.Enemies:GetChildren()) do
                             if table.find(Mon_Cake,v.Name) and Check_Available_Mon(v) then
                                 Start_Attack(v.Name,v.HumanoidRootPart,function()
-                                    return not Auto_Cake_Prince or Check_Near_Mon("Cake Prince") or not Check_Near_Mon(Mon_Cake) or not Check_Available_Mon(v)
+                                    return not Auto_Cake_Prince or not Check_Near_Mon(Mon_Cake) or not Check_Available_Mon(v)
                                 end)
                             end
                         end
@@ -760,11 +1082,11 @@ elseif ThirdSea then
                 if Check_Near_Mon("Cake Prince") then
 
                     if not workspace.Enemies:FindFirstChild("Cake Prince") then
-                        repeat wait()
-                            if game.ReplicatedStorage:FindFirstChild("Cake Prince") then
+                        if game.ReplicatedStorage:FindFirstChild("Cake Prince") then
+                            repeat wait()
                                 TP(game.ReplicatedStorage:FindFirstChild("Cake Prince").HumanoidRootPart.CFrame)
-                            end
-                        until not Auto_Cake_Prince or not Check_Near_Mon("Cake Prince")
+                            until not Auto_Cake_Prince or not Check_Near_Mon("Cake Prince")
+                        end
                     end
 
                     for i,v in pairs(workspace.Enemies:GetChildren()) do
@@ -790,6 +1112,10 @@ MainTab:Toggle("Fast Attack",true,function(value)
     NewFastAttack = value
     NoAttackAnimation = value
     FastAttack = value
+end)
+
+MainTab:Toggle("Double Quest",true,function(value)
+    Double_Quest = value
 end)
 
 MainTab:Toggle("Auto Buso",true,function(value)
@@ -847,8 +1173,6 @@ local Code = {
     "Sub2CaptainMaui",
     "DEVSCOOKING",
 }
-
-
 
 MainTab:Slider("Level to Redeem Code", 1, 2525, 1, function(value)
 	Redeem_Code_At_Level = value
@@ -1082,8 +1406,30 @@ end)
 
 StatsTab:Line()
 
-StatsTab:Toggle("Auto Stats Kaitun [Devil Fruit]",false,function(value)
-	Auto_Stats_Kaitun_Devil_Fruit = value
+StatsTab:Toggle("Auto Stats [Melee]",false,function(value)
+	Auto_Stats_Melee = value
+end)
+
+StatsTab:Toggle("Auto Stats [Defense]",false,function(value)
+	Auto_Stats_Defense = value
+end)
+
+StatsTab:Toggle("Auto Stats [Sword]",false,function(value)
+	Auto_Stats_Sword = value
+end)
+
+StatsTab:Toggle("Auto Stats [Gun]",false,function(value)
+	Auto_Stats_Gun = value
+end)
+
+StatsTab:Toggle("Auto Stats [Devil Fruit]",false,function(value)
+	Auto_Stats_Devil_Fruit = value
+end)
+
+StatsTab:Line()
+
+StatsTab:Slider("Point", 1, 100, 3, function(value)
+	Stats_Point = value
 end)
 
 spawn(function()
@@ -1102,6 +1448,21 @@ spawn(function()
                     if Auto_Stats_Kaitun_Gun then Use_Remote("AddPoint","Gun",Stats_Point) end
                     if Auto_Stats_Kaitun_Devil_Fruit then Use_Remote("AddPoint","Demon Fruit",Stats_Point) end
                 end
+            end
+            if Auto_Stats_Melee then
+                Use_Remote("AddPoint","Melee",Stats_Point)
+            end
+            if Auto_Stats_Defense then
+                Use_Remote("AddPoint","Defense",Stats_Point)
+            end
+            if Auto_Stats_Sword then 
+                Use_Remote("AddPoint","Sword",Stats_Point)
+            end
+            if Auto_Stats_Gun then
+                Use_Remote("AddPoint","Gun",Stats_Point)
+            end
+            if Auto_Stats_Devil_Fruit then
+                Use_Remote("AddPoint","Demon Fruit",Stats_Point)
             end
         end)
     end
@@ -1187,6 +1548,56 @@ spawn(function()
                 TP(game:GetService("Workspace")["_WorldOrigin"].Locations:FindFirstChild("Island 2").CFrame * CFrame.new(0,70,100))
             elseif game:GetService("Workspace")["_WorldOrigin"].Locations:FindFirstChild("Island 1") and (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - game:GetService("Workspace")["_WorldOrigin"].Locations["Island 1"].Position).Magnitude <= 3000 then
                 TP(game:GetService("Workspace")["_WorldOrigin"].Locations:FindFirstChild("Island 1").CFrame * CFrame.new(0,70,100))
+            end
+        end
+    end
+end)
+
+RaidTab:Line()
+
+RaidTab:Toggle("Auto Start Law Raid",false,function(value)
+	Auto_Start_Law_Raid = value
+    Noclip(false)
+end)
+
+spawn(function()
+    while wait() do
+        if Auto_Start_Law_Raid then
+            if SecondSea then return end
+            if not Check_Raid_Chip() then
+                game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BlackbeardReward","Microchip","2")
+            end
+
+            if Check_Raid_Chip() and not Check_Near_Mon("Order [Lv. 1250] [Raid Boss]") then
+                fireclickdetector(game:GetService("Workspace").Map.CircleIsland.RaidSummon.Button.Main.ClickDetector)
+            end
+        end
+    end
+end)
+
+RaidTab:Toggle("Auto Law Raid",false,function(value)
+	Auto_Law_Raid = value
+    Noclip(false)
+end)
+
+spawn(function()
+    while wait() do
+        if Auto_Law_Raid then
+
+            if game.ReplicatedStorage:FindFirstChild("Order [Lv. 1250] [Raid Boss]") then
+                repeat task.wait(.1)
+                    TP(game.ReplicatedStorage:FindFirstChild("Order [Lv. 1250] [Raid Boss]").HumanoidRootPart.CFrame)
+                until workspace.Enemies:FindFirstChild("Order [Lv. 1250] [Raid Boss]") or not Auto_Law_Raid
+            end
+
+            if Check_Near_Mon("Order [Lv. 1250] [Raid Boss]") then
+                for i,v in pairs(workspace.Enemies:GetChildren()) do
+                    if v.Name == "Order [Lv. 1250] [Raid Boss]" and Check_Available_Mon(v) then
+                        Start_Attack(v.Name,v.HumanoidRootPart,function()
+                            return not Auto_Law_Raid or not Check_Near_Mon("Order [Lv. 1250] [Raid Boss]") or not Check_Available_Mon(v)
+                        end)
+                    end
+                end
             end
         end
     end
