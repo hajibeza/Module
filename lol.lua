@@ -550,12 +550,13 @@ end
 function Start_Attack(Entity_Name,Entity_Part,Expression)
     local Expression = Expression or function() return true end
     repeat task.wait(0.02)
+        Noclip(true)
         NeedAttacking = true
         Equip_Tool(Current_Weapon)
         BringMob(Entity_Part.CFrame,Entity_Name)
         Entity_Part.CanCollide = false
         TP(Entity_Part.CFrame * CFrame.new(0,30,0))
-    until not Expression() or game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").Health <= 0
+    until not Expression()
     NeedAttacking = false
 end
 
@@ -733,7 +734,6 @@ elseif ThirdSea then
     spawn(function()
         while wait(.1) do
             if Auto_Cake_Prince then
-                Noclip(true)
 
                 local Remote_Cake_Prince = Use_Remote("CakePrinceSpawner")
 
