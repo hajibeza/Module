@@ -1403,7 +1403,6 @@ do -- Services
     CollectionService = game:GetService("CollectionService")
 end
 
-
 task.spawn(function()
     local stacking = 0
     local printCooldown = 0
@@ -1493,14 +1492,14 @@ task.spawn(function()
     end
 
     while RunService.Stepped:Wait() do
+        print(nearbymon)
+        Controller = Data.activeController
         if #canHits > 0 then
-            Controller = Data.activeController
-            if NormalClick then
-                pcall(task.spawn,Controller.attack,Controller)
-                -- continue
-            end
-            print("Imao")
-            if Controller and Controller.equipped and (not Local_Player.PlayerGui.Main.Dialogue.Visible) and Char.Stun.Value < 1 and Controller.currentWeaponModel then
+            -- if NormalClick then
+            --     pcall(task.spawn,Controller.attack,Controller)
+            --     -- continue
+            -- end
+            if Controller and Controller.equipped and (not Local_Player.PlayerGui.Main.Dialogue.Visible) and Controller.currentWeaponModel then
                 if (NeedAttacking or DamageAura) then
                     if NewFastAttack and tick() > AttackCD and not DisableFastAttack then
                         resetCD()
