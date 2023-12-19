@@ -1409,8 +1409,8 @@ task.spawn(function()
     local printCooldown = 0
     while wait(.075) do
         nearbymon = false
-        table.clear(CurrentAllMob)
-        table.clear(canHits)
+        -- table.clear(CurrentAllMob)
+        -- table.clear(canHits)
         local mobs = CollectionService:GetTagged("ActiveRig")
         for i=1,#mobs do local v = mobs[i]
             local Human = v:FindFirstChildOfClass("Humanoid")
@@ -1492,14 +1492,13 @@ task.spawn(function()
         end
     end
 
-    while task.wait() do
+    while RunService.Stepped:Wait() do
         if #canHits > 0 then
             Controller = Data.activeController
-            -- if NormalClick then
-            --     pcall(task.spawn,Controller.attack,Controller)
-            --     -- continue
-            -- end
-            print(Controller)
+            if NormalClick then
+                pcall(task.spawn,Controller.attack,Controller)
+                -- continue
+            end
             if Controller and Controller.equipped and (not Local_Player.PlayerGui.Main.Dialogue.Visible) and Controller.currentWeaponModel then
                 if (NeedAttacking or DamageAura) then
                     if NewFastAttack and tick() > AttackCD and not DisableFastAttack then
