@@ -1407,26 +1407,27 @@ task.spawn(function()
     local stacking = 0
     local printCooldown = 0
     while wait(.075) do
-        nearbymon = false
-        table.clear(CurrentAllMob)
-        table.clear(canHits)
-        local mobs = CollectionService:GetTagged("ActiveRig")
-        for i=1,#mobs do local v = mobs[i]
-            local Human = v:FindFirstChildOfClass("Humanoid")
-            if Human and Human.Health > 0 and Human.RootPart and v ~= Local_Player.Character then
-                local IsPlayer = game.Players:GetPlayerFromCharacter(v)
-                local IsAlly = IsPlayer and CollectionService:HasTag(IsPlayer,"Ally"..Local_Player.Name)
-                if not IsAlly then
-                    CurrentAllMob[#CurrentAllMob + 1] = v
-                    print("lol")
-                    if dist(Human.RootPart.Position) < 65 then -- Error here
-                        nearbymon = true
-                    end
-                end
-            end
-        end
+        -- nearbymon = false
+        pcall(function()
+            table.clear(CurrentAllMob)
+            table.clear(canHits)
+        -- local mobs = CollectionService:GetTagged("ActiveRig")
+        -- for i=1,#mobs do local v = mobs[i]
+        --     local Human = v:FindFirstChildOfClass("Humanoid")
+        --     if Human and Human.Health > 0 and Human.RootPart and v ~= Local_Player.Character then
+        --         local IsPlayer = game.Players:GetPlayerFromCharacter(v)
+        --         local IsAlly = IsPlayer and CollectionService:HasTag(IsPlayer,"Ally"..Local_Player.Name)
+        --         if not IsAlly then
+        --             CurrentAllMob[#CurrentAllMob + 1] = v
+        --             if dist(Human.RootPart.Position) < 65 then -- Error here
+        --                 print("false")
+        --                 nearbymon = true
+        --             end
+        --         end
+        --     end
+        -- end
 
-        if nearbymon then
+        -- if nearbymon then
             local Enemies = workspace.Enemies:GetChildren()
             local Players = Players:GetPlayers()
             for i=1,#Enemies do local v = Enemies[i]
@@ -1443,7 +1444,8 @@ task.spawn(function()
                     end
                 end
             end
-        end
+        -- end
+        end)
     end
 end)
 
@@ -1493,7 +1495,6 @@ task.spawn(function()
     end
 
     while RunService.Stepped:Wait() do
-        print(nearbymon)
         Controller = Data.activeController
         if #canHits > 0 then
             if NormalClick then
