@@ -1449,58 +1449,57 @@ end)
 
 -- Initialize Fast Attack .
 task.spawn(function()
-    local Data = Combat
-    local Blank = function() end
-    local RigEvent = game:GetService("ReplicatedStorage").RigControllerEvent
-    local Animation = Instance.new("Animation")
-    local RecentlyFired = 0
-    local AttackCD = 0
-    local Controller
-    local lastFireValid = 0
-    local MaxLag = 350
-    fucker = 0.07
-    TryLag = 0
-    local resetCD = function()
-        local WeaponName = Controller.currentWeaponModel.Name
-        local Cooldown = {
-            combat = 0.07
-        }
-        AttackCD = tick() + (fucker and Cooldown[WeaponName:lower()] or fucker or 0.285) + ((TryLag/MaxLag)*0.3)
-        RigEvent.FireServer(RigEvent,"weaponChange",WeaponName)
-        TryLag += 1
-        task.delay((fucker or 0.285) + (TryLag+0.5/MaxLag)*0.3,function()
-            TryLag -= 1
-        end)
-    end
-
-    if not shared.orl then shared.orl = RL.wrapAttackAnimationAsync end
-    if not shared.cpc then shared.cpc = PC.play end
-    if not shared.dnew then shared.dnew = DMG.new end
-    if not shared.attack then shared.attack = RigC.attack end
-    RL.wrapAttackAnimationAsync = function(a,b,c,d,func)
-        if not NoAttackAnimation and not NeedAttacking then
-            PC.play = shared.cpc
-            return shared.orl(a,b,c,65,func)
+    while task.wait() do
+        local Data = Combat
+        local Blank = function() end
+        local RigEvent = game:GetService("ReplicatedStorage").RigControllerEvent
+        local Animation = Instance.new("Animation")
+        local RecentlyFired = 0
+        local AttackCD = 0
+        local Controller
+        local lastFireValid = 0
+        local MaxLag = 350
+        fucker = 0.07
+        TryLag = 0
+        local resetCD = function()
+            local WeaponName = Controller.currentWeaponModel.Name
+            local Cooldown = {
+                combat = 0.07
+            }
+            AttackCD = tick() + (fucker and Cooldown[WeaponName:lower()] or fucker or 0.285) + ((TryLag/MaxLag)*0.3)
+            RigEvent.FireServer(RigEvent,"weaponChange",WeaponName)
+            TryLag += 1
+            task.delay((fucker or 0.285) + (TryLag+0.5/MaxLag)*0.3,function()
+                TryLag -= 1
+            end)
         end
-        local Radius = (DamageAura and DamageAuraRadius) or 65
-        if canHits and #canHits > 0 then
-            PC.play = function() end
-            a:Play(0.00075,0.01,0.01)
-            func(canHits)
-            wait(a.length * 0.5)
-            a:Stop()
-        end
-    end
 
-    while RunService.Stepped:Wait() do
+        if not shared.orl then shared.orl = RL.wrapAttackAnimationAsync end
+        if not shared.cpc then shared.cpc = PC.play end
+        if not shared.dnew then shared.dnew = DMG.new end
+        if not shared.attack then shared.attack = RigC.attack end
+        RL.wrapAttackAnimationAsync = function(a,b,c,d,func)
+            if not NoAttackAnimation and not NeedAttacking then
+                PC.play = shared.cpc
+                return shared.orl(a,b,c,65,func)
+            end
+            local Radius = (DamageAura and DamageAuraRadius) or 65
+            if canHits and #canHits > 0 then
+                PC.play = function() end
+                a:Play(0.00075,0.01,0.01)
+                func(canHits)
+                wait(a.length * 0.5)
+                a:Stop()
+            end
+        end
+
         if #canHits > 0 then
             Controller = Data.activeController
-            if NormalClick then
-                pcall(task.spawn,Controller.attack,Controller)
-                -- continue
-            end
-            print("Imao")
-            if Controller and Controller.equipped and (not Char.Busy.Value or Local_Player.PlayerGui.Main.Dialogue.Visible) and Char.Stun.Value < 1 and Controller.currentWeaponModel then
+            -- if NormalClick then
+            --     pcall(task.spawn,Controller.attack,Controller)
+            --     -- continue
+            -- end
+            if Controller and Controller.equipped and (not Local_Player.PlayerGui.Main.Dialogue.Visible) and Controller.currentWeaponModel then
                 if (NeedAttacking or DamageAura) then
                     if NewFastAttack and tick() > AttackCD and not DisableFastAttack then
                         resetCD()
