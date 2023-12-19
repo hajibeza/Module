@@ -1492,7 +1492,7 @@ task.spawn(function()
         end
     end
 
-    while RunService.Stepped:Wait() do
+    while task.wait() do
         if #canHits > 0 then
             Controller = Data.activeController
             -- if NormalClick then
