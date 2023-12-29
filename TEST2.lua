@@ -727,10 +727,19 @@ BringMob = function(Pos, MonName)
     end
 end
 
+function Check_Tool_Inventory(Tool_Name)
+    if Local_Player.Backpack:FindFirstChild(Tool_Name) or Local_Player.Character:FindFirstChild(Tool_Name) then
+        return true
+    end
+    return false
+end
+
 function Equip_Tool(Tool)
     if Check_Tool_Inventory(Tool) then 
         local ToolHumanoid = Local_Player.Backpack:FindFirstChild(Tool)
-        Local_Player.Character.Humanoid:EquipTool(ToolHumanoid) 
+        if ToolHumanoid then
+            Local_Player.Character.Humanoid:EquipTool(ToolHumanoid) 
+        end
     end
 end
 
@@ -819,13 +828,6 @@ function Check_Total_Material(Name)
         end
     end
     return 0
-end
-
-function Check_Tool_Inventory(Tool_Name)
-    if Local_Player.Backpack:FindFirstChild(Tool_Name) or Local_Player.Character:FindFirstChild(Tool_Name) then
-        return true
-    end
-    return false
 end
 
 function Buy_Combat(Name_Combat,Num)
@@ -942,11 +944,12 @@ spawn(function()
     end
 end)
 
+setfflag("HumanoidParallelRemoveNoPhysics", "False")
+setfflag("HumanoidParallelRemoveNoPhysicsNoSimulate2", "False")
+
 spawn(function()
     while game:GetService("RunService").Stepped:Wait() do
         if Need_Noclip then
-            -- setfflag("HumanoidParallelRemoveNoPhysics", "False")
-            -- setfflag("HumanoidParallelRemoveNoPhysicsNoSimulate2", "False")
             -- Local_Player.Character.Humanoid:ChangeState(11)
             if Local_Player.Character:WaitForChild("Humanoid").Sit then
                 Local_Player.Character:WaitForChild("Humanoid").Sit = false
@@ -1006,6 +1009,13 @@ end)
 spawn(function()
     while wait(1) do
         for i,v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do  
+            if v:IsA("Tool") then
+                if v:FindFirstChild("RemoteFunctionShoot") then 
+                    Weapon_Gun = v.Name
+                end
+            end
+        end
+        for i,v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do  
             if v:IsA("Tool") then
                 if v:FindFirstChild("RemoteFunctionShoot") then 
                     Weapon_Gun = v.Name
@@ -1367,7 +1377,7 @@ spawn(function()
                                         Equip_Tool(Weapon_Gun)
                                         TP(v.HumanoidRootPart.CFrame * CFrame.new(0,30,0))
                                         if Local_Player.Character:FindFirstChild(Weapon_Gun) and Local_Player.Character:FindFirstChild(Weapon_Gun):FindFirstChild("RemoteFunctionShoot") then
-                                            Click()
+                                            task.spawn(Click)
                                             Local_Player.Character[Weapon_Gun].RemoteFunctionShoot:InvokeServer(v.HumanoidRootPart.Position,v.HumanoidRootPart)
                                         end 
                                     until not Auto_Farm_Mastery or not Check_Near_Mon(Data[Level].Mon) or not Check_Available_Mon(v) or not Local_Player.PlayerGui.Main.Quest.Visible
