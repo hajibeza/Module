@@ -727,10 +727,19 @@ BringMob = function(Pos, MonName)
     end
 end
 
+function Check_Tool_Inventory(Tool_Name)
+    if Local_Player.Backpack:FindFirstChild(Tool_Name) or Local_Player.Character:FindFirstChild(Tool_Name) then
+        return true
+    end
+    return false
+end
+
 function Equip_Tool(Tool)
     if Check_Tool_Inventory(Tool) then 
         local ToolHumanoid = Local_Player.Backpack:FindFirstChild(Tool)
-        Local_Player.Character.Humanoid:EquipTool(ToolHumanoid) 
+        if ToolHumanoid then
+            Local_Player.Character.Humanoid:EquipTool(ToolHumanoid) 
+        end
     end
 end
 
@@ -819,13 +828,6 @@ function Check_Total_Material(Name)
         end
     end
     return 0
-end
-
-function Check_Tool_Inventory(Tool_Name)
-    if Local_Player.Backpack:FindFirstChild(Tool_Name) or Local_Player.Character:FindFirstChild(Tool_Name) then
-        return true
-    end
-    return false
 end
 
 function Buy_Combat(Name_Combat,Num)
@@ -942,11 +944,12 @@ spawn(function()
     end
 end)
 
+setfflag("HumanoidParallelRemoveNoPhysics", "False")
+setfflag("HumanoidParallelRemoveNoPhysicsNoSimulate2", "False")
+
 spawn(function()
     while game:GetService("RunService").Stepped:Wait() do
         if Need_Noclip then
-            -- setfflag("HumanoidParallelRemoveNoPhysics", "False")
-            -- setfflag("HumanoidParallelRemoveNoPhysicsNoSimulate2", "False")
             -- Local_Player.Character.Humanoid:ChangeState(11)
             if Local_Player.Character:WaitForChild("Humanoid").Sit then
                 Local_Player.Character:WaitForChild("Humanoid").Sit = false
@@ -1361,7 +1364,6 @@ spawn(function()
                                 end
                                 if Mode_Mastery == "Gun" then
                                     repeat task.wait(0.02)
-                                        NormalClick = true
                                         Need_Noclip = true
                                         Use_Gun = true
                                         PositionSkillMasteryGun = v.HumanoidRootPart.Position
@@ -1372,7 +1374,6 @@ spawn(function()
                                             Local_Player.Character[Weapon_Gun].RemoteFunctionShoot:InvokeServer(v.HumanoidRootPart.Position,v.HumanoidRootPart)
                                         end 
                                     until not Auto_Farm_Mastery or not Check_Near_Mon(Data[Level].Mon) or not Check_Available_Mon(v) or not Local_Player.PlayerGui.Main.Quest.Visible
-                                    NormalClick = false
                                     Need_Noclip = false
                                     Use_Gun = false
                                 end
