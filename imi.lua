@@ -1,4 +1,4 @@
-local exper_id = "3"
+local exper_id = "4"
 
 repeat
     wait()
@@ -13,7 +13,7 @@ end
 game.StarterGui:SetCore(
     "SendNotification",
     {
-        Title = "HadesGod",
+        Title = "HadesGod"..exper_id,
         Text = "Loading",
         Duration = 5
     })
@@ -3997,13 +3997,12 @@ end)
                                                 v.HumanoidRootPart.CanCollide = false
                                                 v.Humanoid.WalkSpeed = 0
                                                 v.Head.CanCollide = false
-                                                
                                                 StartMagnet = true
                                                 if not Fast_Attack then
                                                game:GetService("VirtualUser"):CaptureController()
 				       	                    game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672), game.Workspace.CurrentCamera.CFrame)
 				                            end
-                                            until not _G.AutoFarm or v.Humanoid.Health <= 0 or not v.Parent or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false
+                                            until v.Humanoid.Health <= 0 or not v.Parent or not game:GetService("Workspace").Enemies:FindFirstChild(Mon) or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false
                                         else
                                             StartMagnet = false
                                             game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
