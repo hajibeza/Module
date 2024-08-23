@@ -1,3 +1,5 @@
+local exper_id = "1"
+
 repeat
     wait()
 until game:IsLoaded()
@@ -4649,16 +4651,15 @@ spawn(function()
                                         v.Head.CanCollide = false 
                                         TP2(v.HumanoidRootPart.CFrame * CFrame.new(0, 55, 0))  
                                         NeedAttacking = true
-                                        NameBoneMon = v.Name
-                                        if v.Name == "Demonic Soul" then
-                                            BringMobBone(v.Name, CFrame.new(-9497.908203125, 172.1048126220703, 6148.97119140625))
-                                        elseif v.Name == "Living Zombie" then
-                                            BringMobBone(v.Name, CFrame.new(-10143.466796875, 138.6266632080078, 5974.3330078125))
-                                        elseif v.Name == "Reborn Skeleton" then
-                                            BringMobBone(v.Name, CFrame.new(-8760.986328125, 142.1048126220703, 6039.1083984375))
-                                        elseif v.Name == "Posessed Mummy" then
-                                            BringMobBone(v.Name, CFrame.new(-9575.4267578125, 5.792530536651611, 6226.22900390625))
-                                        end
+                                        -- if v.Name == "Demonic Soul" then
+                                        --     BringMobBone(v.Name, CFrame.new(-9497.908203125, 172.1048126220703, 6148.97119140625))
+                                        -- elseif v.Name == "Living Zombie" then
+                                        --     BringMobBone(v.Name, CFrame.new(-10143.466796875, 138.6266632080078, 5974.3330078125))
+                                        -- elseif v.Name == "Reborn Skeleton" then
+                                        --     BringMobBone(v.Name, CFrame.new(-8760.986328125, 142.1048126220703, 6039.1083984375))
+                                        -- elseif v.Name == "Posessed Mummy" then
+                                        --     BringMobBone(v.Name, CFrame.new(-9575.4267578125, 5.792530536651611, 6226.22900390625))
+                                        -- end
                                 until not _G.Auto_Bone or not v.Parent or v.Humanoid.Health <= 0
                                 NeedAttacking = false
                         end
