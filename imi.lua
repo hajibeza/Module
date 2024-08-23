@@ -1,4 +1,4 @@
-local exper_id = "2"
+local exper_id = "3"
 
 repeat
     wait()
@@ -3988,7 +3988,7 @@ end)
                                 if v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
                                     if v.Name == Mon then
                                         if string.find(game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, NameMon) then
-                                            repeat task.wait()
+                                            repeat task.wait(0.02)
                                                 EquipWeapon(_G.SelectWeapon)
                                                 NeedAttacking = true
                                                 AutoHaki()                        
