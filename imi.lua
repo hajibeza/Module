@@ -1,4 +1,4 @@
-local exper_id = "1"
+local exper_id = "2"
 
 repeat
     wait()
@@ -2974,7 +2974,7 @@ loadSettings()
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "HadesGod",
+    Title = "HadesGod"..exper_id,
     SubTitle = " By ZkanixZ#0",
     TabWidth = 140,
     Size = UDim2.fromOffset(480, 320),
@@ -3973,9 +3973,9 @@ end)
                             if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - CFrameQuest.Position).Magnitude > 2000 then
 						        BTP(CFrameQuest)
                             elseif (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - CFrameQuest.Position).Magnitude <= 2000 then
-                                topos(CFrameQuest)
+                                TP2(CFrameQuest)
                             else
-						        topos(CFrameQuest)
+						        TP2(CFrameQuest)
 					        end
                         end
 					if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - CFrameQuest.Position).Magnitude <= 20 then
@@ -3993,7 +3993,7 @@ end)
                                                 NeedAttacking = true
                                                 AutoHaki()                        
                                                 PosMon = v.HumanoidRootPart.CFrame
-                                                topos(v.HumanoidRootPart.CFrame * CFrame.new(PosX,PosY,PosZ))                                                
+                                                TP2(v.HumanoidRootPart.CFrame * CFrame.new(PosX,PosY,PosZ))                                                
                                                 v.HumanoidRootPart.CanCollide = false
                                                 v.Humanoid.WalkSpeed = 0
                                                 v.Head.CanCollide = false
@@ -4637,11 +4637,7 @@ spawn(function()
                    game:GetService("Workspace").Enemies:FindFirstChild("Posessed Mummy") then
                     NeedAttacking = false
                     for i, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                        if (v.Name == "Reborn Skeleton" or v.Name == "Living Zombie" or 
-                            v.Name == "Demonic Soul" or v.Name == "Posessed Mummy") and 
-                            v:FindFirstChild("Humanoid") and 
-                            v:FindFirstChild("HumanoidRootPart") and 
-                            v.Humanoid.Health > 0 then
+                        if (v.Name == "Reborn Skeleton" or v.Name == "Living Zombie" or  v.Name == "Demonic Soul" or v.Name == "Posessed Mummy") and  v:FindFirstChild("Humanoid") and  v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
                                 repeat 
                                     task.wait()
                                         AutoHaki()
