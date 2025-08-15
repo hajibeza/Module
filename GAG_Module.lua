@@ -1,12 +1,12 @@
 local Module = {}
 Module.__index = Module
 
-if not Import then
-	error("Import not found")
-	return
-end
+-- if not Import then
+-- 	error("Import not found")
+-- 	return
+-- end
 
-local Utility = Import("Web", "Utility.lua")
+local Utility = loadstring(game:HttpGet("https://raw.githubusercontent.com/hajibeza/Module/main/GAG_Utility.lua"))()
 
 local BackPack = Utility.BackPack
 local HumanoidRootPart = Utility.HumanoidRootPart
