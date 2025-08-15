@@ -10,14 +10,14 @@ local Window = nil
 
 function Library:Setup()
 	Window = UI:CreateWindow({
-		Title = "CobraHub",
+		Title = "Phantom Flux",
 		--// Icon = "rbxassetid://79794145409508",
 		IconThemed = true,
-		Author = "Scripted by CobraHub Team",
+		Author = "Scripted by Phantom Flux Team",
 		Folder = "",
 		Size = UDim2.fromOffset(520, 400),
 		Transparent = true,
-		Theme = "Dark",
+		Theme = _G.Config_Theme or "Dark",
 		User = {
 			Enabled = true,
 			Callback = function() end,
