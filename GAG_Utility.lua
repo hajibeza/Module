@@ -21,6 +21,7 @@ Utility.PlayerGui = Utility.LocalPlayer:WaitForChild("PlayerGui")
 Utility.Mouse = Utility.LocalPlayer:GetMouse()
 
 --// Data
+Utility.EventData = require(Utility.ReplicatedStorage.Data.EventShopData)
 Utility.FruitsData = require(Utility.ReplicatedStorage.Data.SeedData)
 Utility.Gears = require(Utility.ReplicatedStorage.Data.GearData)
 Utility.Mutations = require(Utility.ReplicatedStorage.Modules.MutationHandler).MutationNames
@@ -172,6 +173,7 @@ Utility.ActivePetService = Utility.GameEvents:WaitForChild("ActivePetService")
 Utility.SeedStock = {}
 Utility.GearStock = {}
 Utility.Fruits = {}
+Utility.EventItem = {}
 
 for i, v in pairs(Utility.FruitsData) do
 	for i2, v2 in pairs(v) do
@@ -193,13 +195,17 @@ for i, v in pairs(Utility.Gears) do
 	end
 end
 
-for i, v in pairs(Utility.FruitsData) do
-	table.insert(Utility.Fruits, i)
+for i, v in pairs(Utility.EventData) do
+	table.insert(Utility.EventItem, i)
 end
 
 --// Add "All"
 if not table.find(Utility.Fruits, "All") then
 	table.insert(Utility.Fruits, "All")
+end
+
+if not table.find(Utility.EventItem, "All") then
+	table.insert(Utility.EventItem, "All")
 end
 
 if not table.find(Utility.Mutations, "All") then
