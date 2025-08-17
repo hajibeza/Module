@@ -204,9 +204,9 @@ if not table.find(Utility.Fruits, "All") then
 	table.insert(Utility.Fruits, "All")
 end
 
-if not table.find(Utility.EventItem, "All") then
-	table.insert(Utility.EventItem, "All")
-end
+-- if not table.find(Utility.EventItem, "All") then
+-- 	table.insert(Utility.EventItem, "All")
+-- end
 
 if not table.find(Utility.Mutations, "All") then
 	table.insert(Utility.Mutations, "All")
