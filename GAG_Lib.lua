@@ -9,23 +9,28 @@ local UI = Library.Async --// Shortened
 local Window = nil
 
 function Library:Setup()
-	Window = UI:CreateWindow({
+	local version = LRM_ScriptVersion and "v" .. table.concat(LRM_ScriptVersion:split(""), ".") or "Dev Version"
+	local Window = UI:CreateWindow({
 		Title = "Phantom Flux",
-		--// Icon = "rbxassetid://79794145409508",
-		IconThemed = true,
-		Author = "Scripted by Phantom Flux Team",
-		Folder = "",
-		Size = UDim2.fromOffset(520, 400),
+		Icon = "rbxassetid://128278170341835",
+		Author = (premium and "Premium" or " 99 NITF") .. " | " .. version,
+		Folder = "PhantomFlux",
+		Size = UDim2.fromOffset(580, 460),
 		Transparent = true,
-		Theme = _G.Config_Theme or "Dark",
+		Theme = "Dark",
+		Resizable = true,
+		SideBarWidth = 200,
+		Background = "",
+		BackgroundImageTransparency = 0.42,
+		HideSearchBar = true,
+		ScrollBarEnabled = false,
 		User = {
 			Enabled = true,
-			Callback = function() end,
 			Anonymous = false,
+			Callback = function()
+				print("clicked")
+			end,
 		},
-		SideBarWidth = 200,
-		ScrollBarEnabled = true,
-		KeySystem = false, --// Will use our custom keysystem in the loader.lua
 	})
 
 	return Window
@@ -97,11 +102,11 @@ function Library:SetupAboutUs(AboutUs)
 		return
 	end
 
-	AboutUs:Paragraph({
-		Title = "Who Are We?",
-		Icon = "user-circle",
-		Desc = "CobraHub is a flexible and powerful script hub for Roblox, designed to enhance your gaming experience with a variety of features and tools.",
-	})
+	-- AboutUs:Paragraph({
+	-- 	Title = "Who Are We?",
+	-- 	Icon = "user-circle",
+	-- 	Desc = "Phantom Flux is a flexible and powerful script hub for Roblox, designed to enhance your gaming experience with a variety of features and tools.",
+	-- })
 
 	AboutUs:Paragraph({
 		Title = "Discord Invites",
@@ -110,11 +115,11 @@ function Library:SetupAboutUs(AboutUs)
 	})
 
 	AboutUs:Button({
-		Title = "CobraHub Discord Link (Click to Copy)",
+		Title = "Discord Link (Click to Copy)",
 		Icon = "link",
 		Callback = function()
-			setclipboard("discord.gg/cobrahub")
-			Library:Notify({ Title = "Copied!", Content = "CobraHub Discord link copied!", Duration = 3 })
+			setclipboard("discord.gg/PhantomFlux")
+			Library:Notify({ Title = "Copied!", Content = "Discord link copied!", Duration = 3 })
 		end,
 	})
 end
