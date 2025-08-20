@@ -13,7 +13,7 @@ function Library:Setup()
 	Window = UI:CreateWindow({
 		Title = "Phantom Flux",
 		Icon = "rbxassetid://128278170341835",
-		Author = (premium and "Premium" or " 99 NITF") .. " | " .. version,
+		Author = (premium and "Premium" or " Grow a Graden") .. " | " .. version,
 		Folder = "PhantomFlux",
 		Size = UDim2.fromOffset(580, 460),
 		Transparent = true,
